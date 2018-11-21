@@ -32,6 +32,10 @@ public class Series {
     public void setSerie(String serie) {
         this.serie = serie;
     }
+    
+    public boolean isSerieDefined() {
+        return serie != null;
+    }
 
     public String getSheet() {
         return sheet;
@@ -72,5 +76,9 @@ public class Series {
         }
         sb.append("]");
         return sb.toString();
+    }
+    
+    public boolean isSerieActive(SerieDAO serieDao) {
+        return serieDao.getName().equals(serie);
     }
 }

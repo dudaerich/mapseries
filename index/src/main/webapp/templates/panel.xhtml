@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition>
+
+        <div class="container right-panel">
+            <div class="row justify-content-between red">
+                <div class="logo">
+                    <a href="https://www.mzk.cz/">
+                        <h:graphicImage library="default" name="#{msg['mzkLogoSrc']}"/>
+                    </a>
+                </div>
+                <select id="lang-switcher" class="languages custom-select">
+                    <option value="cs">CZ</option>
+                    <option value="de">DE</option>
+                    <option value="en">EN</option>
+                </select>
+            </div>
+            <div class="row justify-content-end red">
+                <div class="title">#{msg['applicationTitle']}</div>
+            </div>
+            <div class="row justify-content-end red">
+                <div class="subtitle">#{msg['applicationSubTitle']}</div>
+            </div>
+            <div class="row justify-content-end red">
+                <div class="search-label">#{msg['search-label']}:</div>
+            </div>
+            <div class="row justify-content-end red">
+                <input id="search-location" type="text" class="search-input form-control right mb-4 mt-2"/>
+            </div>
+
+            <div class="row">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <li class="nav-item">
+                        <a id="main-tab" class="nav-link active" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">#{msg['series']}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="about-tab" class="nav-link" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false">#{msg['applicationTitle']}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="help-tab" class="nav-link" data-toggle="tab" href="#help" role="tab" aria-controls="help" aria-selected="false">#{msg['help']}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="row tab-pane fade show active justify-content-start black" id="main" role="tabpanel" aria-labelledby="main-tab">
+                <div class="col mt-4">
+                    <div class="row"><h2>#{msg['choose-serie']}:</h2></div>
+                    <ui:repeat value="#{series.series}" var="serie">
+                        <div class="row serie #{series.isSerieActive(serie) ? 'active' : 'inactive'}">
+                            <h:link value="— #{serie.name}" outcome="/map.xhtml">
+                                <f:param name="serie" value="#{serie.name}"/>
+                            </h:link>
+                            <ui:fragment rendered="#{series.isSerieActive(serie)}">
+                                <div class="description">
+                                    Description of the serie....
+                                </div>
+                            </ui:fragment>
+                        </div>                        
+                    </ui:repeat>
+                </div>
+            </div>
+            <div class="row tab-pane fade justify-content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
+                <div class="col">
+                    <div class="row tab-text subtitle" data-text-ref="about-scales-text"></div>
+                </div>
+            </div>
+            <div class="row tab-pane fade justify-content-start black" id="help" role="tabpanel" aria-labelledby="help-tab">
+                <div class="col">
+                    <div class="row tab-text subtitle" data-text-ref="help-text"></div>
+                </div>
+            </div>
+            <div class="row tab-pane fade justify-content-start black" id="authors" role="tabpanel" aria-labelledby="authors-tab">
+                <div class="col">
+                    <div class="row tab-text my-4" data-text-ref="authors-text">
+                        <h:outputText value="#{msg['authors.text']}" escape="false"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row black" id="pannel-padding"></div>
+            <div class="black" id="footer">
+                <div class="row">
+                    <div class="col text-center">
+                        <a href="http://mapseries.mzk.cz/catalog" class="align-middle">#{msg['mapseries-catalog']}</a>
+                        <span class="separator">|</span>
+                    </div>
+                    <div class="col text-center">
+                        <a href="https://moravianlibrary.github.io/scale-calculator/" class="align-middle">#{msg['scale-calculator']}</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4 text-center nav">
+                        <a id="authors-tab" href="#authors" class="align-middle" data-toggle="tab" aria-selected="false" role="tab" aria-controls="authors">
+                            #{msg['authors']}
+                        </a>
+                        <span class="separator">|</span>
+                    </div>
+                    <div class="col-8 text-center">
+                        <a href="https://www.openstreetmap.org/" class="align-middle">#{msg['openstreetmap-contributors']}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            window.panel.main();
+        </script>
+
+    </ui:composition>
+</html>
+

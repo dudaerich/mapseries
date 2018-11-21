@@ -35,7 +35,7 @@ public class User implements Serializable {
     
     private static final String LANG_KEY = "lang";
     
-    private static final List<String> supportedLocales = Arrays.asList("cs", "en");
+    private static final List<String> SUPPORTED_LOCALES = Arrays.asList("cs", "en");
     
     private final FacesContext context = FacesContext.getCurrentInstance();
     
@@ -77,7 +77,7 @@ public class User implements Serializable {
     public void setLang(String lang) {
         if (lang != null && !lang.isEmpty()) {
             context.getExternalContext().getSessionMap().put(LANG_KEY, lang);
-            if (supportedLocales.contains(lang)) {
+            if (SUPPORTED_LOCALES.contains(lang)) {
                 context.getViewRoot().setLocale(Locale.forLanguageTag(lang));
             }
         }
@@ -164,7 +164,7 @@ public class User implements Serializable {
     public List<String> getLanguages() {
         String currentLang = getLang();
         List<String> result = new ArrayList<>();
-        for (String lang : supportedLocales) {
+        for (String lang : SUPPORTED_LOCALES) {
             if (!lang.equals(currentLang)) {
                 result.add(lang);
             }

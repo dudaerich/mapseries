@@ -3,6 +3,7 @@ import $ from 'jquery'
 import bootbox from 'bootbox'
 import loading from 'js/loading'
 import turf from 'turf'
+import page from 'js/page'
 
 showError = (msg) ->
   bootbox.alert {
@@ -14,14 +15,18 @@ showError = (msg) ->
 export default {
   main: ->
     # default zoom, center and rotation
-    zoom = 5
-    center = [20, 46]
-    bearing = 0
-    pitch = 0
+    defaultZoom = 5
+    defaultCenter = [20, 46]
+    defaultBearing = 0
+    defaultPitch = 0
 
-    if window.location.hash != ''
-      # try to restore center, zoom-level and rotation from the URL
-      hash = window.location.hash.replace('#map=', '')
+    zoom = defaultZoom
+    center = defaultCenter
+    bearing = defaultBearing
+    pitch = defaultPitch
+
+    restoreMapPosition = ->
+      hash = page.getAnchor('map', '')
       parts = hash.split('/')
       if parts.length == 5
         zoom = parseInt(parts[0], 10)
@@ -31,6 +36,13 @@ export default {
         ]
         bearing = parseFloat(parts[3])
         pitch = parseFloat(parts[4])
+      else
+        zoom = defaultZoom
+        center = defaultCenter
+        bearing = defaultBearing
+        pitch = defaultPitch
+
+    restoreMapPosition()
 
     map = new mapboxgl.Map
         container: 'map'
@@ -59,96 +71,100 @@ export default {
 
     map.addControl(new mapboxgl.NavigationControl())
 
-    loading.show()
-    $.ajax {
-      type: 'GET'
-      url: "#{window.contextPath}/server/data/geojson/#{window.mapSettings.grid}.json"
-      dataType: "json",
-      success: (geojson) ->
-        loading.hide()
+    loadGrid = ->
+      loading.show()
+      $.ajax {
+        type: 'GET'
+        url: "#{window.contextPath}/server/data/geojson/#{window.mapSettings.grid}.json"
+        dataType: "json",
+        success: (geojson) ->
+          loading.hide()
 
-        labels = []
-        posFeatures = []
-        negFeatures = []
+          labels = []
+          posFeatures = []
+          negFeatures = []
 
-        geojson.features.forEach (feature) ->
-          sheetId = feature.properties.SHEET.toString()
-          if sheetId in window.mapSettings.sheetIds
-            posFeatures.push(feature)
-          else
-            negFeatures.push(feature)
+          geojson.features.forEach (feature) ->
+            sheetId = feature.properties.SHEET.toString()
+            if sheetId in window.mapSettings.sheetIds
+              posFeatures.push(feature)
+            else
+              negFeatures.push(feature)
 
-        posFeatures.forEach (feature) ->
-          centroid = turf.centroid(feature)
-          centroid.properties = feature.properties
-          labels.push(centroid)
+          posFeatures.forEach (feature) ->
+            centroid = turf.centroid(feature)
+            centroid.properties = feature.properties
+            labels.push(centroid)
 
-        map.addSource("geojson-pos-source", {
-          "type": "geojson"
-          "data": {
-            "type": "FeatureCollection",
-            "features": posFeatures
-          }
-        })
+          map.addSource("geojson-pos-source", {
+            "type": "geojson"
+            "data": {
+              "type": "FeatureCollection",
+              "features": posFeatures
+            }
+          })
 
-        map.addSource("geojson-neg-source", {
-          "type": "geojson"
-          "data": {
-            "type": "FeatureCollection",
-            "features": negFeatures
-          }
-        })
+          map.addSource("geojson-neg-source", {
+            "type": "geojson"
+            "data": {
+              "type": "FeatureCollection",
+              "features": negFeatures
+            }
+          })
 
-        map.addLayer({
-          "id": "geojson-pos-layer"
-          "type": "fill"
-          "source": "geojson-pos-source"
-          "paint": {
-              "fill-color": "#888"
-              "fill-outline-color": "#000"
-              "fill-opacity": 0.8
-          }
-        })
+          map.addLayer({
+            "id": "geojson-pos-layer"
+            "type": "fill"
+            "source": "geojson-pos-source"
+            "paint": {
+                "fill-color": "#888"
+                "fill-outline-color": "#000"
+                "fill-opacity": 0.8
+            }
+          })
 
-        map.addLayer({
-          "id": "geojson-neg-layer"
-          "type": "fill"
-          "source": "geojson-neg-source"
-          "paint": {
-              "fill-color": "#888"
-              "fill-outline-color": "#000"
-              "fill-opacity": 0.2
-          }
-        })
+          map.addLayer({
+            "id": "geojson-neg-layer"
+            "type": "fill"
+            "source": "geojson-neg-source"
+            "paint": {
+                "fill-color": "#888"
+                "fill-outline-color": "#000"
+                "fill-opacity": 0.2
+            }
+          })
 
-        map.addSource("label-source", {
-          "type": "geojson",
-          "data": {
-            "type": "FeatureCollection",
-            "features": labels
-          }
-        });
-        map.addLayer({
-          "id": "label-layer",
-          "type": "symbol",
-          "source": "label-source",
-          "layout": {
-            "text-field": "{SHEET}",
-            "text-font": ["Open Sans Light"],
-          }
-        });
+          map.addSource("label-source", {
+            "type": "geojson",
+            "data": {
+              "type": "FeatureCollection",
+              "features": labels
+            }
+          });
+          map.addLayer({
+            "id": "label-layer",
+            "type": "symbol",
+            "source": "label-source",
+            "layout": {
+              "text-field": "{SHEET}",
+              "text-font": ["Open Sans Light"],
+            }
+          });
 
-        map.on 'click', 'label-layer', (e) ->
-          id = e.features[0].properties['SHEET']
-          location.href = "#{window.contextPath}/sheet.xhtml?serie=#{encodeURIComponent(window.mapSettings.serie)}&sheet=#{id}"
+          map.on 'click', 'label-layer', (e) ->
+            id = e.features[0].properties['SHEET']
+            location.href = "#{window.contextPath}/sheet.xhtml?serie=#{encodeURIComponent(window.mapSettings.serie)}&sheet=#{id}"
 
-        map.on 'mouseenter', 'label-layer', () -> map.getCanvas().style.cursor = 'pointer'
-        map.on 'mouseleave', 'label-layer', () -> map.getCanvas().style.cursor = ''
+          map.on 'mouseenter', 'label-layer', () -> map.getCanvas().style.cursor = 'pointer'
+          map.on 'mouseleave', 'label-layer', () -> map.getCanvas().style.cursor = ''
 
-      error: (err) ->
-        loading.hide()
-        showError "Server returned code #{err.status} with message: #{err.responseText}"
-    }
+        error: (err) ->
+          loading.hide()
+          showError "Server returned code #{err.status} with message: #{err.responseText}"
+      }
+
+    if window.mapSettings
+      loadGrid()
 
     shouldUpdate = true
     updatePermalink = () ->
@@ -157,33 +173,23 @@ export default {
         return
 
       center = map.getCenter()
-      z = map.getZoom()
+      z = Math.round(map.getZoom() * 100) / 100
       x = Math.round(center.lng * 100) / 100
       y = Math.round(center.lat * 100) / 100
       b = Math.round(map.getBearing() * 100) / 100
       p = Math.round(map.getPitch() * 100) / 100
-      hash = "#map=#{z}/#{x}/#{y}/#{b}/#{p}"
-      state = {
-        zoom: map.getZoom()
-        center: [map.getCenter().lng, map.getCenter().lat]
-        bearing: map.getBearing()
-        pitch: map.getPitch()
-      }
-      window.history.pushState(state, 'map', hash)
+      page.updateAnchor("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
 
     map.on('moveend', updatePermalink)
 
     # restore the view state when navigating through the history, see
     # https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
     window.addEventListener 'popstate', (event) ->
-      if event.state == null
-        return
-
       shouldUpdate = false
-      center = event.state.center
+      restoreMapPosition()
       map.setCenter(new mapboxgl.LngLat(center[0], center[1]))
-      map.setZoom(event.state.zoom)
-      map.setBearing(event.state.bearing)
-      map.setPitch(event.state.pitch)
+      map.setZoom(zoom)
+      map.setBearing(bearing)
+      map.setPitch(pitch)
       shouldUpdate = true
 }
