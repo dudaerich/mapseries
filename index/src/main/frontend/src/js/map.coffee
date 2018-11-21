@@ -174,7 +174,7 @@ export default {
 
       updatingMapState = true
       center = map.getCenter()
-      z = Math.round(map.getZoom() * 100) / 100
+      z = Math.round(map.getZoom() * 10000) / 10000
       x = Math.round(center.lng * 100) / 100
       y = Math.round(center.lat * 100) / 100
       b = Math.round(map.getBearing() * 100) / 100
@@ -183,6 +183,7 @@ export default {
       updatingMapState = false
 
     map.on('moveend', updatePermalink)
+    $(() -> updatePermalink())
 
     # restore the view state when navigating through the history, see
     # https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
