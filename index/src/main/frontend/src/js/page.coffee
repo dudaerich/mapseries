@@ -32,6 +32,9 @@ export default {
     updateAnchorInUrlObj(window.location, key, value)
     $('a').each (i, a) -> updateAnchorInUrlObj(a, key, value)
 
+  updateAnchorOnlyLinks: (key, value) ->
+    $('a').each (i, a) -> updateAnchorInUrlObj(a, key, value)
+
   getAnchor: (key, defaultVal) ->
     components = parseComponents(window.location.hash)
     component = components.find (x) -> x[0] == key

@@ -167,23 +167,28 @@ export default {
       loadGrid()
 
     updatingMapState = false
-    updatePermalink = () ->
+    updatePermalink = (e, onlyLinks) ->
       if updatingMapState
         # do not update the URL when the view was changed in the 'popstate' handler
         return
 
       updatingMapState = true
-      center = map.getCenter()
+      c = map.getCenter()
       z = Math.round(map.getZoom() * 10000) / 10000
-      x = Math.round(center.lng * 100) / 100
-      y = Math.round(center.lat * 100) / 100
+      x = Math.round(c.lng * 100) / 100
+      y = Math.round(c.lat * 100) / 100
       b = Math.round(map.getBearing() * 100) / 100
       p = Math.round(map.getPitch() * 100) / 100
-      page.updateAnchor("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+
+      if onlyLinks
+        page.updateAnchorOnlyLinks("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+      else
+        page.updateAnchor("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+
       updatingMapState = false
 
     map.on('moveend', updatePermalink)
-    $(() -> updatePermalink())
+    $(() -> updatePermalink(null, true))
 
     # restore the view state when navigating through the history, see
     # https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
