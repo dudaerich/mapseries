@@ -166,12 +166,13 @@ export default {
     if window.mapSettings
       loadGrid()
 
-    shouldUpdate = true
+    updatingMapState = false
     updatePermalink = () ->
-      if not shouldUpdate
+      if updatingMapState
         # do not update the URL when the view was changed in the 'popstate' handler
         return
 
+      updatingMapState = true
       center = map.getCenter()
       z = Math.round(map.getZoom() * 100) / 100
       x = Math.round(center.lng * 100) / 100
@@ -179,17 +180,20 @@ export default {
       b = Math.round(map.getBearing() * 100) / 100
       p = Math.round(map.getPitch() * 100) / 100
       page.updateAnchor("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+      updatingMapState = false
 
     map.on('moveend', updatePermalink)
 
     # restore the view state when navigating through the history, see
     # https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
     window.addEventListener 'popstate', (event) ->
-      shouldUpdate = false
+      if updatingMapState
+        return
+      updatingMapState = true
       restoreMapPosition()
       map.setCenter(new mapboxgl.LngLat(center[0], center[1]))
       map.setZoom(zoom)
       map.setBearing(bearing)
       map.setPitch(pitch)
-      shouldUpdate = true
+      updatingMapState = false
 }
