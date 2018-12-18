@@ -1,8 +1,8 @@
 package cz.mzk.mapseries.jsf.beans;
 
-import cz.mzk.mapseries.update.SeriesManager;
-import cz.mzk.mapseries.update.dao.SerieDAO;
-import cz.mzk.mapseries.update.dao.SheetDAO;
+import cz.mzk.mapseries.managers.SeriesManager;
+import cz.mzk.mapseries.dao.SerieDAO;
+import cz.mzk.mapseries.dao.SheetDAO;
 import org.jboss.logging.Logger;
 
 import javax.ejb.EJB;

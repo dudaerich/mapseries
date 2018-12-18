@@ -1,7 +1,8 @@
 package cz.mzk.mapseries.update;
 
-import cz.mzk.mapseries.update.dao.SerieDAO;
-import cz.mzk.mapseries.update.dao.UpdateTaskDAO;
+import cz.mzk.mapseries.managers.UpdateTaskManager;
+import cz.mzk.mapseries.dao.SerieDAO;
+import cz.mzk.mapseries.dao.UpdateTaskDAO;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;

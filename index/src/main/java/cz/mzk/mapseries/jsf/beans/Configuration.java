@@ -2,8 +2,8 @@ package cz.mzk.mapseries.jsf.beans;
 
 import cz.mzk.mapseries.github.GithubService;
 import cz.mzk.mapseries.update.UpdateEJB;
-import cz.mzk.mapseries.update.dao.UpdateTaskDAO;
-import cz.mzk.mapseries.update.UpdateTaskManager;
+import cz.mzk.mapseries.dao.UpdateTaskDAO;
+import cz.mzk.mapseries.managers.UpdateTaskManager;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,13 +1,15 @@
 import 'jquery'
 import 'bootstrap'
-import panel from 'js/panel'
+import rightPanel from 'js/right-panel'
+import index from 'js/index'
 import contentSettings from 'js/content-settings'
 import updateSettings from 'js/update-settings'
 import usersSettings from 'js/users-settings'
 import map from 'js/map'
 import tools from 'js/tools'
 
-window.panel = panel
+window.rightPanel = rightPanel
+window.index = index
 window.contentSettings = contentSettings
 window.updateSettings = updateSettings
 window.usersSettings = usersSettings

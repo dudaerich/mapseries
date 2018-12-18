@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
  */
 public class MarcRecord {
 
-    private Map<String, String> controlFields = new HashMap<>();
+    private final Map<String, String> controlFields = new HashMap<>();
 
-    private Map<String, List<MarcDataField>> dataFields = new HashMap<>();
+    private final Map<String, List<MarcDataField>> dataFields = new HashMap<>();
 
     public void addControlField(String tag, String value) {
         controlFields.put(tag, value);
@@ -39,6 +40,22 @@ public class MarcRecord {
 
     public List<MarcDataField> getDataFields(String tag) {
         return dataFields.get(tag);
+    }
+    
+    public Optional<String> get(MarcIdentifier id) {
+        if (!hasDataField(id.getField())) {
+            return Optional.empty();
+        }
+        
+        List<MarcDataField> fields = getDataFields(id.getField());
+        
+        for (MarcDataField dataField : fields) {
+            if (dataField.hasSubfield(id.getSubfield())) {
+                return Optional.of(dataField.getSubfield(id.getSubfield()));
+            }
+        }
+        
+        return Optional.empty();
     }
 
     @Override

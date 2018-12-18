@@ -1,7 +1,7 @@
-package cz.mzk.mapseries.update;
+package cz.mzk.mapseries.managers;
 
-import cz.mzk.mapseries.update.dao.SerieDAO;
-import cz.mzk.mapseries.update.dao.SheetDAO;
+import cz.mzk.mapseries.dao.SerieDAO;
+import cz.mzk.mapseries.dao.SheetDAO;
 
 import java.util.List;
 import javax.ejb.Stateless;

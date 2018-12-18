@@ -1,4 +1,4 @@
-package cz.mzk.mapseries.update.dao;
+package cz.mzk.mapseries.dao;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
