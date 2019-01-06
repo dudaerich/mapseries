@@ -2,6 +2,7 @@ import Handsontable from 'handsontable'
 import $ from 'jquery'
 import bootbox from 'bootbox'
 import loading from 'js/loading'
+import events from 'js/events'
 
 beforeUnload = (e) -> e.returnValue = window.msg.changesNotSaved
 
@@ -26,7 +27,14 @@ export default {
     }]
     originData = JSON.stringify(window.contentDefinitionData)
 
+    width = $('.main').width()
+    height = $(window).height() - $('#content-settings-table').offset().top
+
+    $('#content-settings-table-scrolling-container').css('width', "#{width}px")
+    $('#content-settings-table-scrolling-container').css('height', "#{height}px")
     config =
+      width: width
+      height: height
       columns: [
           {
               data: 'field'
@@ -69,16 +77,28 @@ export default {
 
     table.addHook('afterChange', ->
       newData = JSON.stringify(window.contentDefinitionData)
-      console.log 'Comparing'
-      console.log originData
-      console.log newData
       if originData == newData
-        $('#btn-save').addClass 'disabled'
+        $('#btn-save').prop('disabled', true)
         $(window).off 'beforeunload', beforeUnload
       else
-        $('#btn-save').removeClass 'disabled'
+        $('#btn-save').prop('disabled', false)
         $(window).on 'beforeunload', beforeUnload
     )
+
+    updateSize = () ->
+      width = $('.main').width()
+      height = $(window).height() - $('#content-settings-table').offset().top
+
+      $('#content-settings-table-scrolling-container').css('width', "#{width}px")
+      $('#content-settings-table-scrolling-container').css('height', "#{height}px")
+
+      table.updateSettings {
+        width: width
+        height: height
+      }
+
+    $(window).on 'resize', updateSize
+    events.on 'main-resized', updateSize
 
   onRestoreClick: ->
     window.location.reload()

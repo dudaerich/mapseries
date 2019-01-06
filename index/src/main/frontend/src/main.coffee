@@ -7,6 +7,7 @@ import updateSettings from 'js/update-settings'
 import usersSettings from 'js/users-settings'
 import map from 'js/map'
 import tools from 'js/tools'
+import admin from 'js/admin'
 
 window.rightPanel = rightPanel
 window.index = index
@@ -15,3 +16,4 @@ window.updateSettings = updateSettings
 window.usersSettings = usersSettings
 window.map = map
 window.tools = tools
+window.admin = admin

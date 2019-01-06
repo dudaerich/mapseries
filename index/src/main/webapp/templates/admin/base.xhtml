@@ -17,61 +17,57 @@
         
         <ui:include src="/templates/js-vars.xhtml"/>
         
-        <ui:insert name="header">
-            <ui:include src="/templates/admin/header.xhtml"/>
-        </ui:insert>
+        <ui:fragment rendered="#{user.authenticate and user.admin}">
+            <ui:include src="/templates/admin/left-panel.xhtml"/>
+        </ui:fragment>
         
-        <div id="content">
-            <ui:fragment rendered="#{!user.authenticate}">
+        <div class="page #{user.authenticate and user.admin ? '' : 'full'}">
+            
+            <ui:include src="/templates/admin/top-panel.xhtml"/>
+            
+            <div class="main">
                 
-                <div class="container-fluid expand">
-                    <table>
+                <ui:fragment rendered="#{!user.authenticate}">
+                
+                    <table class="expand">
                         <tr class="text-center">
                             <td>
                                 <a class="btn btn-success noexpand" href="#{user.authURL}">#{msg['login']}</a>
                             </td>
                         </tr>
                     </table>
-                </div>
                 
-            </ui:fragment>
+                </ui:fragment>
             
-            <ui:fragment rendered="#{user.authenticate}">
-                
-                <ui:fragment rendered="#{!user.admin}">
-                    <div class="container-fluid expand">
-                        <table>
+                <ui:fragment rendered="#{user.authenticate}">
+
+                    <ui:fragment rendered="#{!user.admin}">
+
+                        <table class="expand">
                             <tr class="text-center">
                                 <td>
                                     <p class="text-danger noexpand">#{msg['notAuthorized']}</p>
                                 </td>
                             </tr>
                         </table>
-                    </div>
+
+                    </ui:fragment>
+
+                    <ui:fragment rendered="#{user.admin}">
+
+                        <ui:insert name="admin-content"/>
+
+                    </ui:fragment>
+
                 </ui:fragment>
                 
-                <ui:fragment rendered="#{user.admin}">
-                    
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-sm-3 col-md-2 sidebar">
-                                <ul class="nav nav-sidebar">
-                                    <li class="#{activeMenuItem == 'index' ? 'active' : ''}"><a href="#{application.contextPath}/admin/index.xhtml">#{msg['contentSettings']}</a></li>
-                                    <li class="#{activeMenuItem == 'update' ? 'active' : ''}"><a href="#{application.contextPath}/admin/update.xhtml">#{msg['updateSettings']}</a></li>
-                                    <li class="#{activeMenuItem == 'users' ? 'active' : ''}"><a href="#{application.contextPath}/admin/users.xhtml">#{msg['usersSettings']}</a></li>
-                                </ul>
-                            </div>
-                            <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                                <div class="row">
-                                    <ui:insert name="admin-content"/>
-                                </div>
-                            </div>
-                        </div>
-                  </div>
-                </ui:fragment>
-                
-            </ui:fragment>
+            </div>
+            
         </div>
+        
+        <script>
+            window.admin.main()
+        </script>
         
         <ui:insert name="footer">
             <ui:include src="/templates/admin/footer.xhtml"/>

@@ -1,16 +1,12 @@
 package cz.mzk.mapseries.update;
 
 import cz.mzk.mapseries.dao.SheetDAO;
-import cz.mzk.mapseries.oai.marc.MarcDataField;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import cz.mzk.mapseries.oai.marc.MarcRecord;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
