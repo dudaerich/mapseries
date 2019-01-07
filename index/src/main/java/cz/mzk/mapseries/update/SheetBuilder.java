@@ -6,7 +6,9 @@ import cz.mzk.mapseries.oai.marc.MarcRecord;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -47,15 +49,20 @@ public class SheetBuilder {
     }
     
     private Optional<String> getId() {
-        MarcIdentifier marcId = MarcIdentifier.fromString(contentDefinition.getSheets());
-        Optional<String> sheetId = marcRecord.get(marcId);
+        MarcIdentifier sheetId = MarcIdentifier.fromString(contentDefinition.getSheets());
         
-        if (sheetId.isPresent()) {
-            String result = applyGroovyTransformation(sheetId.get(), contentDefinition.getGroupBy());
-            return Optional.of(result);
-        } else {
+        List<String> sheetIdValues = getValues(sheetId);
+        
+        if (sheetIdValues.isEmpty()) {
             return Optional.empty();
         }
+        
+        if (sheetIdValues.size() > 1) {
+            log.println("[WARN] found more than one sheet identificators: " + marcRecord);
+        }
+        
+        String result = applyGroovyTransformation(sheetIdValues.get(0), contentDefinition.getGroupBy());
+        return Optional.of(result);
     }
     
     private String applyGroovyTransformation(String value, String script) {
@@ -67,12 +74,29 @@ public class SheetBuilder {
     
     private String getTitle() {
         MarcIdentifier marcId = new MarcIdentifier("245", "a");
-        return marcRecord.get(marcId).orElse("Unknown");
+        
+        String title = String.join("; ", getValues(marcId));
+        
+        return !title.isEmpty() ? title : "Unknown";
     }
     
     private String getYear() {
         MarcIdentifier marcId = new MarcIdentifier("490", "v");
-        String year = marcRecord.get(marcId).orElse("");
+        
+        List<String> years = getValues(marcId);
+        
+        String year;
+        
+        if (years.isEmpty()) {
+            year = "";
+        } else {
+            year = years.get(0);
+        }
+        
+        if (years.size() > 1) {
+            log.println("[WARN] record contains more than one 490v fields: " + marcRecord);
+        }
+        
         if (year.contains(",")) {
             int comma = year.indexOf(',');
             year = year.substring(comma + 1).trim();
@@ -82,7 +106,17 @@ public class SheetBuilder {
     
     private String getDigitalLibraryUrl() {
         MarcIdentifier marcId = new MarcIdentifier("911", "u");
-        return marcRecord.get(marcId).orElse("");
+        List<String> urls = getValues(marcId);
+        
+        if (urls.isEmpty()) {
+            return "";
+        }
+        
+        if (urls.size() > 1) {
+            log.println("[WARN] record contains more than one 911u fields: " + marcRecord);
+        }
+        
+        return urls.get(0);
     }
     
     private String getThubmnailUrl(String digitalLibraryUrl) {
@@ -95,11 +129,35 @@ public class SheetBuilder {
     }
     
     private String getVufindUrl() {
-        if (!marcRecord.hasControlField("001")) {
+        Optional<String> controlField = marcRecord.getControlField("001");
+        if (!controlField.isPresent()) {
             log.println(String.format("[WARN] following record has no controlfield 001: %s", marcRecord));
             return "";
         } else {
-            return String.format("https://vufind.mzk.cz/Record/MZK01-%s", marcRecord.getControlField("001"));
+            return String.format("https://vufind.mzk.cz/Record/MZK01-%s", controlField.get());
+        }
+    }
+    
+    private List<String> getValues(MarcIdentifier id) {
+        MarcIdentifier fieldId = MarcIdentifier.fromString(contentDefinition.getField());
+        
+        if (fieldId.getField().equals(id.getField())) {
+            return marcRecord
+                    .getDataFields(fieldId.getField())
+                    .stream()
+                    .filter(dataField -> contentDefinition.getName().equals(dataField.getSubfield(fieldId.getSubfield()).orElse(null)))
+                    .map(dataField -> dataField.getSubfield(id.getSubfield()))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+        } else {
+            return marcRecord
+                    .getDataFields(id.getField())
+                    .stream()
+                    .map(dataField -> dataField.getSubfield(id.getSubfield()))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
         }
     }
     

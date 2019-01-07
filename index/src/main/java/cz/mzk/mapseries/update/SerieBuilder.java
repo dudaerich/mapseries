@@ -1,7 +1,6 @@
 package cz.mzk.mapseries.update;
 
 import cz.mzk.mapseries.dao.SerieDAO;
-import cz.mzk.mapseries.oai.marc.MarcRecord;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>

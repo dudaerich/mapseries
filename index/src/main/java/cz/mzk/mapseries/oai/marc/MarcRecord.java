@@ -1,6 +1,7 @@
 package cz.mzk.mapseries.oai.marc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +20,8 @@ public class MarcRecord {
         controlFields.put(tag, value);
     }
 
-    public boolean hasControlField(String tag) {
-        return controlFields.containsKey(tag);
-    }
-
-    public String getControlField(String tag) {
-        return controlFields.get(tag);
+    public Optional<String> getControlField(String tag) {
+        return Optional.ofNullable(controlFields.get(tag));
     }
 
     public void addDataField(String tag, MarcDataField dataField) {
@@ -34,28 +31,8 @@ public class MarcRecord {
         dataFields.get(tag).add(dataField);
     }
 
-    public boolean hasDataField(String tag) {
-        return dataFields.containsKey(tag);
-    }
-
     public List<MarcDataField> getDataFields(String tag) {
-        return dataFields.get(tag);
-    }
-    
-    public Optional<String> get(MarcIdentifier id) {
-        if (!hasDataField(id.getField())) {
-            return Optional.empty();
-        }
-        
-        List<MarcDataField> fields = getDataFields(id.getField());
-        
-        for (MarcDataField dataField : fields) {
-            if (dataField.hasSubfield(id.getSubfield())) {
-                return Optional.of(dataField.getSubfield(id.getSubfield()));
-            }
-        }
-        
-        return Optional.empty();
+        return dataFields.getOrDefault(tag, Collections.EMPTY_LIST);
     }
 
     @Override

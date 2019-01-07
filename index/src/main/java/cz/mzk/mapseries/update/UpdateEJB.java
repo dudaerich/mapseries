@@ -140,20 +140,20 @@ public class UpdateEJB {
         
         for (MarcRecord marcRecord : oaiMarcXmlReader) {
 
-            ContentDefinition definition = findDefinitionForRecord(definitions, marcRecord);
-            if (definition == null) {
+            Optional<ContentDefinition> definition = findDefinitionForRecord(definitions, marcRecord);
+            if (!definition.isPresent()) {
                 continue;
             }
             
-            SerieDAO serie = series.get(definition);
+            SerieDAO serie = series.get(definition.get());
             if (serie == null) {
-                SerieBuilder builder = new SerieBuilder(definition);
+                SerieBuilder builder = new SerieBuilder(definition.get());
                 serie = builder.buildSerie();
-                series.put(definition, serie);
+                series.put(definition.get(), serie);
                 output.add(serie);
             }
             
-            SheetBuilder sheetBuilder = new SheetBuilder(definition, marcRecord, log);
+            SheetBuilder sheetBuilder = new SheetBuilder(definition.get(), marcRecord, log);
             Optional<SheetDAO> optSheetDAO = sheetBuilder.buildSheet();
             
             if (!optSheetDAO.isPresent()) {
@@ -169,23 +169,25 @@ public class UpdateEJB {
         log.println("Update finished successfully");
     }
     
-    private ContentDefinition findDefinitionForRecord(List<ContentDefinition> definitions, MarcRecord marcRecord) throws Exception {
+    private Optional<ContentDefinition> findDefinitionForRecord(List<ContentDefinition> definitions, MarcRecord marcRecord) throws Exception {
         
         for (ContentDefinition definition : definitions) {
             if (isDefinitionSuitableForRecord(definition, marcRecord)) {
-                return definition;
+                return Optional.of(definition);
             }
         }
         
-        return null;
+        return Optional.empty();
     }
     
     private boolean isDefinitionSuitableForRecord(ContentDefinition definition, MarcRecord marcRecord) throws Exception {
         String field = definition.getField();
         MarcIdentifier marcId = MarcIdentifier.fromString(field);
-        Optional<String> serieName = marcRecord.get(marcId);
-        
-        return serieName.isPresent() && serieName.get().equals(definition.getName());
+        return marcRecord
+                .getDataFields(marcId.getField())
+                .stream()
+                .map(dataField -> dataField.getSubfield(marcId.getSubfield()))
+                .anyMatch(subfield -> subfield.isPresent() && subfield.get().equals(definition.getName()));
     }
     
 }

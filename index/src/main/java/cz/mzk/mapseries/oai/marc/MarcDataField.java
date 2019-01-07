@@ -2,6 +2,7 @@ package cz.mzk.mapseries.oai.marc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
@@ -12,7 +13,7 @@ public class MarcDataField {
 
     private String ind2;
 
-    private Map<String, String> subfields = new HashMap<>();
+    private final Map<String, String> subfields = new HashMap<>();
 
     public String getInd1() {
         return ind1;
@@ -34,12 +35,8 @@ public class MarcDataField {
         subfields.put(code, value);
     }
 
-    public boolean hasSubfield(String code) {
-        return subfields.containsKey(code);
-    }
-
-    public String getSubfield(String code) {
-        return subfields.get(code);
+    public Optional<String> getSubfield(String code) {
+        return Optional.ofNullable(subfields.get(code));
     }
 
     @Override
