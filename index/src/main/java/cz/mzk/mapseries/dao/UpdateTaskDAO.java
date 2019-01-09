@@ -1,14 +1,12 @@
 package cz.mzk.mapseries.dao;
 
 import java.io.Serializable;
+import java.sql.Clob;
 import java.time.ZonedDateTime;
-import javax.persistence.Basic;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.SequenceGenerator;
 
 /**
@@ -27,9 +25,7 @@ public class UpdateTaskDAO implements Serializable {
     
     private boolean result;
     
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private String log;
+    private Clob log;
     
     private ZonedDateTime startDate;
     
@@ -51,11 +47,11 @@ public class UpdateTaskDAO implements Serializable {
         this.result = result;
     }
 
-    public String getLog() {
+    public Clob getLog() {
         return log;
     }
 
-    public void setLog(String log) {
+    public void setLog(Clob log) {
         this.log = log;
     }
     

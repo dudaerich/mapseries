@@ -11,12 +11,17 @@ import cz.mzk.mapseries.dao.SheetDAO;
 import cz.mzk.mapseries.dao.UpdateTaskDAO;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
@@ -27,6 +32,7 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Queue;
 import javax.jms.TextMessage;
+import org.hibernate.Hibernate;
 import org.jboss.logging.Logger;
 
 /**
@@ -37,7 +43,7 @@ public class UpdateEJB {
     
     private static final Logger LOG = Logger.getLogger(UpdateEJB.class);
     
-    private static final String TASK_ID_KEY = "taskId";
+    public static final String TASK_ID_KEY = "taskId";
     
     private volatile UpdateTaskDAO runningTask = null;
     
@@ -95,33 +101,44 @@ public class UpdateEJB {
     }
     
     @Lock(READ)
-    public synchronized void runUpdateTask(UpdateTaskDAO updateTaskDAO, String definitionJson, List<Object> output) {
+    public synchronized UpdateTaskResult runUpdateTask(UpdateTaskDAO updateTaskDAO, String definitionJson) {
         
         runningTask = updateTaskDAO;
         
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        log = new PrintStream(os);
+        File logFile = createTempFile();
+        
+        log = createPrintStream(logFile);
         
         try {
-            
-            doUpdate(definitionJson, output);
-            
-            updateTaskDAO.setResult(true);
+            List<Object> data = doUpdate(definitionJson);
+            return new UpdateTaskResult(logFile, data);
             
         } catch (Exception e) {
-            
-            updateTaskDAO.setResult(false);
             log.println("[TASK FAILED] " + e);
             e.printStackTrace(log);
             
+            return new UpdateTaskResult(logFile);
+            
         } finally {
-            try {
-                updateTaskDAO.setLog(os.toString("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                LOG.error("Storing of logs failed because of encoding exception.", e);
-            }
+            log.close();
             runningTask = null;
             log = null;
+        }
+    }
+    
+    private File createTempFile() {
+        try {
+            return File.createTempFile("mapseries", ".log");
+        } catch (IOException e) {
+            throw new RuntimeException("Error while creating temp file.", e);
+        }
+    }
+    
+    private PrintStream createPrintStream(File f) {
+        try {
+            return new PrintStream(f);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
     
@@ -130,8 +147,10 @@ public class UpdateEJB {
         return runningTask;
     }
     
-    private void doUpdate(String definitionJson, List<Object> output) throws Exception {
+    private List<Object> doUpdate(String definitionJson) throws Exception {
         log.println("Starting update.");
+        
+        List<Object> result = new ArrayList<>();
         
         List<ContentDefinition> definitions = ContentDefinition.readFromJSONArray(definitionJson);
         Map<ContentDefinition, SerieDAO> series = new HashMap<>();
@@ -150,7 +169,7 @@ public class UpdateEJB {
                 SerieBuilder builder = new SerieBuilder(definition.get());
                 serie = builder.buildSerie();
                 series.put(definition.get(), serie);
-                output.add(serie);
+                result.add(serie);
             }
             
             SheetBuilder sheetBuilder = new SheetBuilder(definition.get(), marcRecord, log);
@@ -163,10 +182,12 @@ public class UpdateEJB {
             SheetDAO sheetDAO = optSheetDAO.get();
             sheetDAO.setSerie(serie);
             
-            output.add(sheetDAO);
+            result.add(sheetDAO);
         }
         
         log.println("Update finished successfully");
+        
+        return result;
     }
     
     private Optional<ContentDefinition> findDefinitionForRecord(List<ContentDefinition> definitions, MarcRecord marcRecord) throws Exception {

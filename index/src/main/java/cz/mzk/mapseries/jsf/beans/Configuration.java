@@ -4,6 +4,8 @@ import cz.mzk.mapseries.github.GithubService;
 import cz.mzk.mapseries.update.UpdateEJB;
 import cz.mzk.mapseries.dao.UpdateTaskDAO;
 import cz.mzk.mapseries.managers.UpdateTaskManager;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +13,10 @@ import java.util.List;
 import java.util.Locale;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Model;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.inject.Inject;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.jboss.logging.Logger;
 
@@ -35,6 +40,8 @@ public class Configuration {
     
     @EJB
     private UpdateEJB updateEJB;
+    
+    private UpdateTaskDAO updateTaskDAO;
 
     public Long getUpdateTaskId() {
         return updateTaskId;
@@ -42,13 +49,26 @@ public class Configuration {
 
     public void setUpdateTaskId(Long updateTaskId) {
         this.updateTaskId = updateTaskId;
+        updateTaskDAO = updateTaskManager.findById(updateTaskId);
     }
     
     public UpdateTaskDAO getUpdateTask() {
-        if (updateTaskId == null) {
-            return null;
+        return updateTaskDAO;
+    }
+    
+    public String getUpdateTaskLog() {
+        try {
+            if (updateTaskDAO.getLog().length() > 10l * 1024 * 1024) {
+                ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+                String contextPath = externalContext.getApplicationContextPath();
+                externalContext.redirect(contextPath + "/" + "admin/log?taskId=" + updateTaskId);
+                return null;
+            } else {
+                return IOUtils.toString(updateTaskDAO.getLog().getCharacterStream());
+            }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
         }
-        return updateTaskManager.findById(updateTaskId);
     }
     
     public String getContentDefinitionData() {
