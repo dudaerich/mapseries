@@ -6,6 +6,7 @@ import cz.mzk.mapseries.oai.marc.MarcRecord;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ public class SheetBuilder {
         sheet.setSheetId(sheetId.get());
         sheet.setTitle(getTitle());
         sheet.setYear(getYear());
+        sheet.setAuthor(getAuthor());
         
         String digitalLibraryUrl = getDigitalLibraryUrl();
         String thumbnailUrl = getThubmnailUrl(digitalLibraryUrl);
@@ -49,19 +51,15 @@ public class SheetBuilder {
     }
     
     private Optional<String> getId() {
-        MarcIdentifier sheetId = MarcIdentifier.fromString(contentDefinition.getSheets());
+        MarcIdentifier marcId = MarcIdentifier.fromString(contentDefinition.getSheets());
+
+        Optional<String> sheetId = getValue(marcId);
         
-        List<String> sheetIdValues = getValues(sheetId);
-        
-        if (sheetIdValues.isEmpty()) {
+        if (!sheetId.isPresent()) {
             return Optional.empty();
         }
         
-        if (sheetIdValues.size() > 1) {
-            log.println("[WARN] found more than one sheet identificators: " + marcRecord);
-        }
-        
-        String result = applyGroovyTransformation(sheetIdValues.get(0), contentDefinition.getGroupBy());
+        String result = applyGroovyTransformation(sheetId.get(), contentDefinition.getGroupBy());
         return Optional.of(result);
     }
     
@@ -75,27 +73,13 @@ public class SheetBuilder {
     private String getTitle() {
         MarcIdentifier marcId = new MarcIdentifier("245", "a");
         
-        String title = String.join("; ", getValues(marcId));
-        
-        return !title.isEmpty() ? title : "Unknown";
+        return getValue(marcId).orElse("Unknown");
     }
     
     private String getYear() {
         MarcIdentifier marcId = new MarcIdentifier("490", "v");
         
-        List<String> years = getValues(marcId);
-        
-        String year;
-        
-        if (years.isEmpty()) {
-            year = "";
-        } else {
-            year = years.get(0);
-        }
-        
-        if (years.size() > 1) {
-            log.println("[WARN] record contains more than one 490v fields: " + marcRecord);
-        }
+        String year = getValue(marcId).orElse("");
         
         if (year.contains(",")) {
             int comma = year.indexOf(',');
@@ -106,17 +90,8 @@ public class SheetBuilder {
     
     private String getDigitalLibraryUrl() {
         MarcIdentifier marcId = new MarcIdentifier("911", "u");
-        List<String> urls = getValues(marcId);
-        
-        if (urls.isEmpty()) {
-            return "";
-        }
-        
-        if (urls.size() > 1) {
-            log.println("[WARN] record contains more than one 911u fields: " + marcRecord);
-        }
-        
-        return urls.get(0);
+
+        return getValue(marcId).orElse("");
     }
     
     private String getThubmnailUrl(String digitalLibraryUrl) {
@@ -136,6 +111,49 @@ public class SheetBuilder {
         } else {
             return String.format("https://vufind.mzk.cz/Record/MZK01-%s", controlField.get());
         }
+    }
+    
+    private String getAuthor() {
+        List<Optional<String>> authorParts = new ArrayList<>();
+
+        authorParts.add(getValue(new MarcIdentifier("110", "a")));
+        authorParts.add(getValue(new MarcIdentifier("110", "b")));
+
+        String author = joinParts(authorParts);
+
+        if (!author.isEmpty()) {
+            return author;
+        }
+
+        authorParts.clear();
+        authorParts.add(getValue(new MarcIdentifier("100", "a")));
+        authorParts.add(getValue(new MarcIdentifier("100", "d")));
+
+        author = joinParts(authorParts);
+
+        return !author.isEmpty() ? author : "Unknown";
+    }
+
+    private String joinParts(List<Optional<String>> parts) {
+        return parts
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.joining(" "));
+    }
+    
+    private Optional<String> getValue(MarcIdentifier id) {
+        List<String> values = getValues(id);
+
+        if (values.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (values.size() > 1) {
+            log.println(String.format("[WARN] record contains more than one %s fields: %s", id, marcRecord));
+        }
+
+        return Optional.of(values.get(0));
     }
     
     private List<String> getValues(MarcIdentifier id) {

@@ -10,18 +10,15 @@ import cz.mzk.mapseries.dao.SerieDAO;
 import cz.mzk.mapseries.dao.SheetDAO;
 import cz.mzk.mapseries.dao.UpdateTaskDAO;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
@@ -32,7 +29,6 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Queue;
 import javax.jms.TextMessage;
-import org.hibernate.Hibernate;
 import org.jboss.logging.Logger;
 
 /**

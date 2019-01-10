@@ -42,7 +42,9 @@ public class MarcIdentifier {
     public String getSubfield() {
         return subfield;
     }
-    
-    
-    
+
+    @Override
+    public String toString() {
+        return field + subfield;
+    }
 }

@@ -32,6 +32,8 @@ public class SheetDAO {
     private String vufindUrl;
     
     private String thumbnailUrl;
+    
+    private String author;
 
     public Long getId() {
         return id;
@@ -129,6 +131,14 @@ public class SheetDAO {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
     }
 
 }

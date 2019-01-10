@@ -37,7 +37,10 @@
                     <ui:fragment rendered="#{configuration.updateTask == null}">
                         <p>#{msg['updateTask']} #{msg['withId']} #{configuration.updateTaskId} #{msg['doesNotExist']}.</p>
                     </ui:fragment>
-                    <ui:fragment rendered="#{configuration.updateTask != null}">
+                    <ui:fragment rendered="#{configuration.updateTask != null and not configuration.updateTaskLogAvailable}">
+                        <pre id="log">#{msg['logNotAvailable']}</pre>
+                    </ui:fragment>
+                    <ui:fragment rendered="#{configuration.updateTask != null and configuration.updateTaskLogAvailable}">
                         <pre id="log">#{configuration.updateTaskLog}</pre>
                     </ui:fragment>
                 </div>

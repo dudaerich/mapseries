@@ -11,8 +11,10 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.ejb.EJB;
 import javax.enterprise.inject.Model;
+import javax.faces.bean.ManagedProperty;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
@@ -41,6 +43,9 @@ public class Configuration {
     @EJB
     private UpdateEJB updateEJB;
     
+    @ManagedProperty("#{msg}")
+    private ResourceBundle msg;
+    
     private UpdateTaskDAO updateTaskDAO;
 
     public Long getUpdateTaskId() {
@@ -56,7 +61,12 @@ public class Configuration {
         return updateTaskDAO;
     }
     
+    public boolean isUpdateTaskLogAvailable() {
+        return updateTaskDAO.getLog() != null;
+    }
+    
     public String getUpdateTaskLog() {
+        
         try {
             if (updateTaskDAO.getLog().length() > 10l * 1024 * 1024) {
                 ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();

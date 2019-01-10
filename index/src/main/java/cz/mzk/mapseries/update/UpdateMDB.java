@@ -69,7 +69,8 @@ public class UpdateMDB implements MessageListener {
             
             Session session = em.unwrap(Session.class);
             
-            try (Reader reader = new FileReader(result.getLogFile())) {
+            try {
+                Reader reader = new FileReader(result.getLogFile());
                 Clob clob = session.getLobHelper().createClob(reader, result.getLogSize());
                 updateTaskDAO.setLog(clob);
             } catch (IOException e) {
