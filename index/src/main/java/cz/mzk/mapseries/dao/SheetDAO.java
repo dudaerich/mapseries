@@ -35,6 +35,8 @@ public class SheetDAO {
     
     private String author;
 
+    private String otherAuthors;
+
     public Long getId() {
         return id;
     }
@@ -141,4 +143,11 @@ public class SheetDAO {
         this.author = author;
     }
 
+    public String getOtherAuthors() {
+        return otherAuthors;
+    }
+
+    public void setOtherAuthors(String otherAuthors) {
+        this.otherAuthors = otherAuthors;
+    }
 }

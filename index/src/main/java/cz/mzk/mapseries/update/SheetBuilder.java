@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -39,6 +40,7 @@ public class SheetBuilder {
         sheet.setTitle(getTitle());
         sheet.setYear(getYear());
         sheet.setAuthor(getAuthor());
+        sheet.setOtherAuthors(getOtherAuthors());
         
         String digitalLibraryUrl = getDigitalLibraryUrl();
         String thumbnailUrl = getThubmnailUrl(digitalLibraryUrl);
@@ -119,7 +121,7 @@ public class SheetBuilder {
         authorParts.add(getValue(new MarcIdentifier("110", "a")));
         authorParts.add(getValue(new MarcIdentifier("110", "b")));
 
-        String author = joinParts(authorParts);
+        String author = join(" ", authorParts);
 
         if (!author.isEmpty()) {
             return author;
@@ -129,17 +131,33 @@ public class SheetBuilder {
         authorParts.add(getValue(new MarcIdentifier("100", "a")));
         authorParts.add(getValue(new MarcIdentifier("100", "d")));
 
-        author = joinParts(authorParts);
-
-        return !author.isEmpty() ? author : "Unknown";
+        return join(" ", authorParts);
     }
 
-    private String joinParts(List<Optional<String>> parts) {
+    private String getOtherAuthors() {
+        List<Optional<String>> parts1 = new ArrayList<>();
+        List<Optional<String>> parts2 = new ArrayList<>();
+
+        parts1.add(getValue(new MarcIdentifier("710", "a")));
+        parts1.add(getValue(new MarcIdentifier("710", "b")));
+        parts2.add(getValue(new MarcIdentifier("700", "a")));
+        parts2.add(getValue(new MarcIdentifier("700", "d")));
+
+        return join("; ", join(" ", parts1), join(" ", parts2));
+    }
+
+    private String join(String delimeter, List<Optional<String>> parts) {
         return parts
                 .stream()
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.joining(" "));
+                .collect(Collectors.joining(delimeter));
+    }
+
+    private String join(String delimeter, String... parts) {
+        return Stream.of(parts)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.joining(delimeter));
     }
     
     private Optional<String> getValue(MarcIdentifier id) {
