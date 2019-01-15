@@ -1,6 +1,7 @@
 package cz.mzk.mapseries.update;
 
 import cz.mzk.mapseries.dao.SheetDAO;
+import cz.mzk.mapseries.oai.marc.MarcDataField;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import cz.mzk.mapseries.oai.marc.MarcRecord;
 import groovy.lang.Binding;
@@ -73,13 +74,13 @@ public class SheetBuilder {
     }
     
     private String getTitle() {
-        MarcIdentifier marcId = new MarcIdentifier("245", "a");
+        MarcIdentifier marcId = new MarcIdentifier.Builder().withField("245").withSubfield("a").build();
         
         return getValue(marcId).orElse("Unknown");
     }
     
     private String getYear() {
-        MarcIdentifier marcId = new MarcIdentifier("490", "v");
+        MarcIdentifier marcId = new MarcIdentifier.Builder().withField("490").withSubfield("v").build();
         
         String year = getValue(marcId).orElse("");
         
@@ -91,7 +92,7 @@ public class SheetBuilder {
     }
     
     private String getDigitalLibraryUrl() {
-        MarcIdentifier marcId = new MarcIdentifier("911", "u");
+        MarcIdentifier marcId = new MarcIdentifier.Builder().withField("911").withSubfield("u").build();
 
         return getValue(marcId).orElse("");
     }
@@ -118,8 +119,11 @@ public class SheetBuilder {
     private String getAuthor() {
         List<Optional<String>> authorParts = new ArrayList<>();
 
-        authorParts.add(getValue(new MarcIdentifier("110", "a")));
-        authorParts.add(getValue(new MarcIdentifier("110", "b")));
+        MarcIdentifier marcId110a = new MarcIdentifier.Builder().withField("110").withSubfield("a").build();
+        MarcIdentifier marcId110b = new MarcIdentifier.Builder().withField("110").withSubfield("b").build();
+
+        authorParts.add(getValue(marcId110a));
+        authorParts.add(getValue(marcId110b));
 
         String author = join(" ", authorParts);
 
@@ -127,9 +131,12 @@ public class SheetBuilder {
             return author;
         }
 
+        MarcIdentifier marcId100a = new MarcIdentifier.Builder().withField("100").withSubfield("a").build();
+        MarcIdentifier marcId100d = new MarcIdentifier.Builder().withField("100").withSubfield("d").build();
+
         authorParts.clear();
-        authorParts.add(getValue(new MarcIdentifier("100", "a")));
-        authorParts.add(getValue(new MarcIdentifier("100", "d")));
+        authorParts.add(getValue(marcId100a));
+        authorParts.add(getValue(marcId100d));
 
         return join(" ", authorParts);
     }
@@ -138,10 +145,15 @@ public class SheetBuilder {
         List<Optional<String>> parts1 = new ArrayList<>();
         List<Optional<String>> parts2 = new ArrayList<>();
 
-        parts1.add(getValue(new MarcIdentifier("710", "a")));
-        parts1.add(getValue(new MarcIdentifier("710", "b")));
-        parts2.add(getValue(new MarcIdentifier("700", "a")));
-        parts2.add(getValue(new MarcIdentifier("700", "d")));
+        MarcIdentifier marcId710a = new MarcIdentifier.Builder().withField("710").withSubfield("a").build();
+        MarcIdentifier marcId710b = new MarcIdentifier.Builder().withField("710").withSubfield("b").build();
+        MarcIdentifier marcId700a = new MarcIdentifier.Builder().withField("700").withSubfield("a").build();
+        MarcIdentifier marcId700d = new MarcIdentifier.Builder().withField("700").withSubfield("d").build();
+
+        parts1.add(getValue(marcId710a));
+        parts1.add(getValue(marcId710b));
+        parts2.add(getValue(marcId700a));
+        parts2.add(getValue(marcId700d));
 
         return join("; ", join(" ", parts1), join(" ", parts2));
     }
@@ -181,6 +193,7 @@ public class SheetBuilder {
             return marcRecord
                     .getDataFields(fieldId.getField())
                     .stream()
+                    .filter(dataField -> checkIndicators(dataField, id))
                     .filter(dataField -> contentDefinition.getName().equals(dataField.getSubfield(fieldId.getSubfield()).orElse(null)))
                     .map(dataField -> dataField.getSubfield(id.getSubfield()))
                     .filter(Optional::isPresent)
@@ -190,11 +203,24 @@ public class SheetBuilder {
             return marcRecord
                     .getDataFields(id.getField())
                     .stream()
+                    .filter(dataField -> checkIndicators(dataField, id))
                     .map(dataField -> dataField.getSubfield(id.getSubfield()))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(Collectors.toList());
         }
+    }
+
+    private boolean checkIndicators(MarcDataField dataField, MarcIdentifier id) {
+        boolean result = true;
+
+        if (id.getInd1().isPresent()) {
+            result = dataField.getInd1().equals(id.getInd1());
+        }
+        if (id.getInd2().isPresent()) {
+            result = result && dataField.getInd2().equals(id.getInd2());
+        }
+        return result;
     }
     
 }
