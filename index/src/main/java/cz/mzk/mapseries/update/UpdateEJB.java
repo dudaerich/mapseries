@@ -203,7 +203,7 @@ public class UpdateEJB {
         return marcRecord
                 .getDataFields(marcId.getField())
                 .stream()
-                .map(dataField -> dataField.getSubfield(marcId.getSubfield()))
+                .map(dataField -> dataField.getSubfield(marcId.getSubfields().get(0)))
                 .anyMatch(subfield -> subfield.isPresent() && subfield.get().equals(definition.getName()));
     }
     

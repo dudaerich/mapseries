@@ -4,12 +4,14 @@ import cz.mzk.mapseries.dao.SheetDAO;
 import cz.mzk.mapseries.oai.marc.MarcDataField;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import cz.mzk.mapseries.oai.marc.MarcRecord;
+import cz.mzk.mapseries.oai.marc.MarcTraversal;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -18,7 +20,10 @@ import java.util.stream.Stream;
  * @author Erich Duda <dudaerich@gmail.com>
  */
 public class SheetBuilder {
-    
+
+    private static final String INNER_DEL = " ";
+    private static final String OUTER_DEL = "; ";
+
     private final ContentDefinition contentDefinition;
     private final MarcRecord marcRecord;
     private final PrintStream log;
@@ -55,15 +60,22 @@ public class SheetBuilder {
     
     private Optional<String> getId() {
         MarcIdentifier marcId = MarcIdentifier.fromString(contentDefinition.getSheets());
+        MarcTraversal marcTraversal = createMarcTraversal(marcId);
 
-        Optional<String> sheetId = getValue(marcId);
+        Optional<String> sheetId = marcTraversal.getValue(marcId);
         
         if (!sheetId.isPresent()) {
             return Optional.empty();
         }
-        
-        String result = applyGroovyTransformation(sheetId.get(), contentDefinition.getGroupBy());
-        return Optional.of(result);
+
+        try {
+            String result = applyGroovyTransformation(sheetId.get(), contentDefinition.getGroupBy());
+            return Optional.of(result);
+        } catch (Exception e) {
+            log.println(String.format("[WARN] applying script on Sheet ID failed because of exception %s. ID: %s; SCRIPT: %s; MarcRecord: %s",
+                    e, sheetId.get(), contentDefinition.getGroupBy(), marcRecord));
+        }
+        return Optional.empty();
     }
     
     private String applyGroovyTransformation(String value, String script) {
@@ -75,14 +87,16 @@ public class SheetBuilder {
     
     private String getTitle() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("245").withSubfield("a").build();
+        MarcTraversal marcTraversal = createMarcTraversal(marcId);
         
-        return getValue(marcId).orElse("Unknown");
+        return marcTraversal.getValue(marcId).orElse("Unknown");
     }
     
     private String getYear() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("490").withSubfield("v").build();
+        MarcTraversal marcTraversal = createMarcTraversal(marcId);
         
-        String year = getValue(marcId).orElse("");
+        String year = marcTraversal.getValue(marcId).orElse("");
         
         if (year.contains(",")) {
             int comma = year.indexOf(',');
@@ -93,8 +107,9 @@ public class SheetBuilder {
     
     private String getDigitalLibraryUrl() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("911").withSubfield("u").build();
+        MarcTraversal marcTraversal = createMarcTraversal(marcId);
 
-        return getValue(marcId).orElse("");
+        return marcTraversal.getValue(marcId).orElse("");
     }
     
     private String getThubmnailUrl(String digitalLibraryUrl) {
@@ -117,110 +132,45 @@ public class SheetBuilder {
     }
     
     private String getAuthor() {
-        List<Optional<String>> authorParts = new ArrayList<>();
+        MarcTraversal marcTraversal = createMarcTraversal();
 
-        MarcIdentifier marcId110a = new MarcIdentifier.Builder().withField("110").withSubfield("a").build();
-        MarcIdentifier marcId110b = new MarcIdentifier.Builder().withField("110").withSubfield("b").build();
+        MarcIdentifier marc110 = new MarcIdentifier.Builder().withField("110").withSubfield("a").withSubfield("b").withDelimiter(INNER_DEL).build();
+        MarcIdentifier marc100 = new MarcIdentifier.Builder().withField("100").withSubfield("a").withSubfield("d").withDelimiter(INNER_DEL).build();
 
-        authorParts.add(getValue(marcId110a));
-        authorParts.add(getValue(marcId110b));
-
-        String author = join(" ", authorParts);
+        String author = marcTraversal.getValueAsString(OUTER_DEL, marc110).orElse("");
 
         if (!author.isEmpty()) {
             return author;
         }
 
-        MarcIdentifier marcId100a = new MarcIdentifier.Builder().withField("100").withSubfield("a").build();
-        MarcIdentifier marcId100d = new MarcIdentifier.Builder().withField("100").withSubfield("d").build();
-
-        authorParts.clear();
-        authorParts.add(getValue(marcId100a));
-        authorParts.add(getValue(marcId100d));
-
-        return join(" ", authorParts);
+        return marcTraversal.getValueAsString(OUTER_DEL, marc100).orElse("");
     }
 
     private String getOtherAuthors() {
-        List<Optional<String>> parts1 = new ArrayList<>();
-        List<Optional<String>> parts2 = new ArrayList<>();
+        MarcTraversal marcTraversal = createMarcTraversal();
 
-        MarcIdentifier marcId710a = new MarcIdentifier.Builder().withField("710").withSubfield("a").build();
-        MarcIdentifier marcId710b = new MarcIdentifier.Builder().withField("710").withSubfield("b").build();
-        MarcIdentifier marcId700a = new MarcIdentifier.Builder().withField("700").withSubfield("a").build();
-        MarcIdentifier marcId700d = new MarcIdentifier.Builder().withField("700").withSubfield("d").build();
+        MarcIdentifier marc710 = new MarcIdentifier.Builder().withField("710").withSubfield("a").withSubfield("b").withDelimiter(INNER_DEL).build();
+        MarcIdentifier marc700 = new MarcIdentifier.Builder().withField("700").withSubfield("a").withSubfield("d").withDelimiter(INNER_DEL).build();
 
-        parts1.add(getValue(marcId710a));
-        parts1.add(getValue(marcId710b));
-        parts2.add(getValue(marcId700a));
-        parts2.add(getValue(marcId700d));
-
-        return join("; ", join(" ", parts1), join(" ", parts2));
+        return marcTraversal.getValueAsString(OUTER_DEL, marc710, marc700).orElse("");
     }
 
-    private String join(String delimeter, List<Optional<String>> parts) {
-        return parts
-                .stream()
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.joining(delimeter));
+    private MarcTraversal createMarcTraversal() {
+        return createMarcTraversal(null);
     }
 
-    private String join(String delimeter, String... parts) {
-        return Stream.of(parts)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(delimeter));
-    }
-    
-    private Optional<String> getValue(MarcIdentifier id) {
-        List<String> values = getValues(id);
+    private MarcTraversal createMarcTraversal(MarcIdentifier identifier) {
+        MarcTraversal.Builder builder = new MarcTraversal.Builder()
+                .withMarcRecord(marcRecord)
+                .withLogHandler(log::println);
 
-        if (values.isEmpty()) {
-            return Optional.empty();
-        }
-
-        if (values.size() > 1) {
-            log.println(String.format("[WARN] record contains more than one %s fields: %s", id, marcRecord));
-        }
-
-        return Optional.of(values.get(0));
-    }
-    
-    private List<String> getValues(MarcIdentifier id) {
         MarcIdentifier fieldId = MarcIdentifier.fromString(contentDefinition.getField());
-        
-        if (fieldId.getField().equals(id.getField())) {
-            return marcRecord
-                    .getDataFields(fieldId.getField())
-                    .stream()
-                    .filter(dataField -> checkIndicators(dataField, id))
-                    .filter(dataField -> contentDefinition.getName().equals(dataField.getSubfield(fieldId.getSubfield()).orElse(null)))
-                    .map(dataField -> dataField.getSubfield(id.getSubfield()))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        } else {
-            return marcRecord
-                    .getDataFields(id.getField())
-                    .stream()
-                    .filter(dataField -> checkIndicators(dataField, id))
-                    .map(dataField -> dataField.getSubfield(id.getSubfield()))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
-        }
-    }
 
-    private boolean checkIndicators(MarcDataField dataField, MarcIdentifier id) {
-        boolean result = true;
+        if (identifier != null && fieldId.getField().equals(identifier.getField())) {
+            builder.withDataFieldPredicate(dataField -> contentDefinition.getName().equals(dataField.getSubfield(fieldId.getSubfields().get(0)).orElse(null)));
+        }
 
-        if (id.getInd1().isPresent()) {
-            result = dataField.getInd1().equals(id.getInd1());
-        }
-        if (id.getInd2().isPresent()) {
-            result = result && dataField.getInd2().equals(id.getInd2());
-        }
-        return result;
+        return builder.build();
     }
     
 }

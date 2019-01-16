@@ -7,9 +7,9 @@ import java.util.*;
  */
 public class MarcDataField {
 
-    private final String ind1;
+    private final Optional<String> ind1;
 
-    private final String ind2;
+    private final Optional<String> ind2;
 
     private final Map<String, String> subfields;
 
@@ -20,11 +20,11 @@ public class MarcDataField {
     }
 
     public Optional<String> getInd1() {
-        return Optional.ofNullable(ind1);
+        return ind1;
     }
 
     public Optional<String> getInd2() {
-        return Optional.ofNullable(ind2);
+        return ind2;
     }
 
     public Optional<String> getSubfield(String code) {
@@ -34,29 +34,29 @@ public class MarcDataField {
     @Override
     public String toString() {
         return "MarcDataField{" +
-                "ind1='" + ind1 + '\'' +
-                ", ind2='" + ind2 + '\'' +
+                "ind1='" + ind1.orElse("") + '\'' +
+                ", ind2='" + ind2.orElse("") + '\'' +
                 ", subfields=" + subfields +
                 '}';
     }
 
     static class Builder {
 
-        private String ind1;
+        private Optional<String> ind1 = Optional.empty();
 
-        private String ind2;
+        private Optional<String> ind2 = Optional.empty();
 
         private final Map<String, String> subfields = new HashMap<>();
 
         Builder withIndicator1(String ind1) {
             Objects.requireNonNull(ind1);
-            this.ind1 = ind1;
+            this.ind1 = Optional.of(ind1);
             return this;
         }
 
         Builder withIndicator2(String ind2) {
             Objects.requireNonNull(ind2);
-            this.ind2 = ind2;
+            this.ind2 = Optional.of(ind2);
             return this;
         }
 
