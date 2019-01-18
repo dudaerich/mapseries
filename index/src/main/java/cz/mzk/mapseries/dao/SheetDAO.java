@@ -1,7 +1,6 @@
 package cz.mzk.mapseries.dao;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
@@ -37,46 +36,20 @@ public class SheetDAO {
 
     private String otherAuthors;
 
+    private String publisher;
+
+    private String issue;
+
+    private String description;
+
+    private String signature;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Override
-    public String toString() {
-        return "SheetDAO{" +
-                "id=" + id +
-                ", serie=" + serie +
-                ", sheetId='" + sheetId + '\'' +
-                ", title='" + title + '\'' +
-                ", year='" + year + '\'' +
-                ", digitalLibraryUrl='" + digitalLibraryUrl + '\'' +
-                ", vufindUrl='" + vufindUrl + '\'' +
-                ", thumbnailUrl='" + thumbnailUrl + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SheetDAO sheetDAO = (SheetDAO) o;
-        return Objects.equals(id, sheetDAO.id) &&
-                Objects.equals(serie, sheetDAO.serie) &&
-                Objects.equals(sheetId, sheetDAO.sheetId) &&
-                Objects.equals(title, sheetDAO.title) &&
-                Objects.equals(year, sheetDAO.year) &&
-                Objects.equals(digitalLibraryUrl, sheetDAO.digitalLibraryUrl) &&
-                Objects.equals(vufindUrl, sheetDAO.vufindUrl) &&
-                Objects.equals(thumbnailUrl, sheetDAO.thumbnailUrl);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, serie, sheetId, title, year, digitalLibraryUrl, vufindUrl, thumbnailUrl);
     }
 
     public SerieDAO getSerie() {
@@ -149,5 +122,37 @@ public class SheetDAO {
 
     public void setOtherAuthors(String otherAuthors) {
         this.otherAuthors = otherAuthors;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+
+    public String getIssue() {
+        return issue;
+    }
+
+    public void setIssue(String issue) {
+        this.issue = issue;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String signature) {
+        this.signature = signature;
     }
 }
