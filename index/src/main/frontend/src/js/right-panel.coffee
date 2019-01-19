@@ -29,11 +29,24 @@ updateTabSize = () ->
 addSlashBetweenZoomButtons = () ->
   $('.ol-zoom.ol-control button.ol-zoom-in').after('<span>/</span>')
 
+updateScrollbar = ->
+  func = ->
+    container = $('#main')
+    activeItem = $('.right-panel .serie.active')
+    activeItemTop = Math.round(activeItem.position().top)
+    activeItemBottom = activeItemTop + activeItem.height()
+
+    if activeItemBottom > $(window).height() || activeItemTop < 0
+      container.scrollTop(activeItemTop - 20)
+
+  window.setTimeout(func, 500)
+
 export default {
   main: ->
     $(() ->
       updateTabSize()
       addSlashBetweenZoomButtons()
+      updateScrollbar()
     )
     $(window).on('resize', updateTabSize)
     $('a[data-toggle="tab"]').on('shown.bs.tab', (e) ->

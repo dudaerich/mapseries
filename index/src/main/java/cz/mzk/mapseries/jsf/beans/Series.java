@@ -24,6 +24,14 @@ public class Series {
     private String serie;
     
     private String sheet;
+    
+    private int issue = 0;
+    
+    private List<SerieDAO> series;
+    
+    private List<SheetDAO> sheets;
+    
+    private SheetDAO activeSheet;
 
     public String getSerie() {
         return serie;
@@ -44,18 +52,31 @@ public class Series {
     public void setSheet(String sheet) {
         this.sheet = sheet;
     }
+
+    public int getIssue() {
+        return issue;
+    }
+
+    public void setIssue(int issue) {
+        this.issue = issue;
+    }
     
     public SerieDAO getSerieDAO() {
         return seriesManager.getSerie(serie);
     }
     
     public List<SerieDAO> getSeries() {
-        return seriesManager.getSeries();
+        if (series == null) {
+            series = seriesManager.getSeries();
+        }
+        return series;
     }
     
     public List<SheetDAO> getSheets() {
-
-        return seriesManager.getSheets(serie, sheet);
+        if (sheets == null) {
+            sheets = seriesManager.getSheets(serie, sheet);
+        }
+        return sheets;
     }
     
     public String getSheetIds() {
@@ -80,5 +101,24 @@ public class Series {
     
     public boolean isSerieActive(SerieDAO serieDao) {
         return serieDao.getName().equals(serie);
+    }
+    
+    public boolean isSheetActive(long issue) {
+        return this.issue == issue;
+    }
+    
+    public SheetDAO getActiveSheet() {
+        if (activeSheet == null) {
+            activeSheet = getSheets().get(issue);
+        }
+        return activeSheet;
+    }
+    
+    public boolean isIssueFirst() {
+        return issue == 0;
+    }
+    
+    public boolean isIssueLast() {
+        return issue == getSheets().size() - 1;
     }
 }

@@ -10,34 +10,68 @@
         <f:viewParam name="lang" value="#{user.lang}" />
         <f:viewParam name="serie" value="#{series.serie}" />
         <f:viewParam name="sheet" value="#{series.sheet}" />
+        <f:viewParam name="issue" value="#{series.issue}" />
     </f:metadata>
      
     <ui:composition template="/templates/base.xhtml">
         
         <ui:define name="content">
-            <div class="container main-container">
+            <div class="main sheet">
                 
-                <ui:repeat step="2" value="#{series.sheets}" varStatus="outerLoopIndex" var="outerLoopVar">
-                    <div class="row">
-                        <ui:repeat offset="#{outerLoopIndex.index}" size="#{(outerLoopIndex.index + 2) gt series.sheets.size() ? series.sheets.size() : outerLoopIndex.index + 2}" 
-                        var="sheet" value="#{series.sheets}">
-                            
-                            <div class="col-md-6 margin-top">
-                                <div class="pull-left margin-right">
-                                    <a href="#{sheet.digitalLibraryUrl}">
-                                        <img width="150px" src="#{sheet.thumbnailUrl}"/>
-                                    </a>
-                                </div>
-                                <div><strong>#{sheet.title}</strong></div>
-                                <div>#{sheet.year}</div>
-                                <div><a href="#{sheet.vufindUrl}">Vufind url</a></div>
+                <div class="left-panel">
+                    
+                    <div class="title">#{series.sheet}</div>
+                    
+                    <div class="text">#{msg['availableVersionsOfSheet']}</div>
+                    
+                    <ui:repeat value="#{series.sheets}" var="sheet" varStatus="status">
+                        <div class="item #{status.index == series.issue ? 'active' : ''}">
+                            <div class="image">
+                                <h:outputLink>
+                                    <f:param name="code" value="#{user.code}" />
+                                    <f:param name="lang" value="#{user.lang}" />
+                                    <f:param name="serie" value="#{series.serie}" />
+                                    <f:param name="sheet" value="#{series.sheet}" />
+                                    <f:param name="issue" value="#{status.index}" />
+                                    <img width="100px" src="#{sheet.thumbnailUrl}"/>
+                                </h:outputLink>
+                                <div class="overlay"></div>
                             </div>
-                        
-                        </ui:repeat>
+                            <div class="mt-1">#{sheet.title}</div>
+                            <div>#{sheet.year}</div>
+                        </div><br/>
+                    </ui:repeat>
+                </div>
+                
+                <div class="detail">
+                    <div>
+                        <h:outputLink rendered="#{not series.issueFirst}" class="arrow left">
+                            <f:param name="code" value="#{user.code}" />
+                            <f:param name="lang" value="#{user.lang}" />
+                            <f:param name="serie" value="#{series.serie}" />
+                            <f:param name="sheet" value="#{series.sheet}" />
+                            <f:param name="issue" value="#{series.issue - 1}" />
+                            <i class="fas fa-angle-left"></i>
+                        </h:outputLink>
+                        <a href="#{series.activeSheet.digitalLibraryUrl}">
+                            <img height="300px" src="#{series.activeSheet.thumbnailUrl}"/>
+                        </a>
+                        <h:outputLink rendered="#{not series.issueLast}" class="arrow right">
+                            <f:param name="code" value="#{user.code}" />
+                            <f:param name="lang" value="#{user.lang}" />
+                            <f:param name="serie" value="#{series.serie}" />
+                            <f:param name="sheet" value="#{series.sheet}" />
+                            <f:param name="issue" value="#{series.issue + 1}" />
+                            <i class="fas fa-angle-right"></i>
+                        </h:outputLink>
                     </div>
-                </ui:repeat>
+                </div>
                
             </div>
+            
+            <script>
+                window.sheet.main();
+            </script>
         </ui:define>
         
     </ui:composition>
