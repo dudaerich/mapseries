@@ -1,8 +1,9 @@
 package cz.mzk.mapseries.jsf.beans;
 
-import cz.mzk.mapseries.github.GithubService;
 import cz.mzk.mapseries.update.UpdateEJB;
 import cz.mzk.mapseries.dao.UpdateTaskDAO;
+import cz.mzk.mapseries.managers.ContentDefinitionItem;
+import cz.mzk.mapseries.managers.ContentDefinitionManager;
 import cz.mzk.mapseries.managers.UpdateTaskManager;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -35,16 +36,13 @@ public class Configuration {
     private Long updateTaskId;
     
     @Inject
-    private GithubService githubService;
+    private ContentDefinitionManager contentDefinitionManager;
     
     @EJB
     private UpdateTaskManager updateTaskManager;
     
     @EJB
     private UpdateEJB updateEJB;
-    
-    @ManagedProperty("#{msg}")
-    private ResourceBundle msg;
     
     private UpdateTaskDAO updateTaskDAO;
 
@@ -82,19 +80,11 @@ public class Configuration {
     }
     
     public String getContentDefinitionData() {
-        String data = null;
-        
-        try {
-            data = githubService.loadFile("/" + CONTENT_DEFINITION_PATH);
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-        }
-        
-        if (data == null) {
-            return "null";
-        } else {
-            return data;
-        }
+        return contentDefinitionManager.getRawData();
+    }
+    
+    public List<ContentDefinitionItem> getContentDefinitions() {
+        return contentDefinitionManager.getDefinitions();
     }
     
     public List<UpdateTaskDAO> getUpdateTasks() {

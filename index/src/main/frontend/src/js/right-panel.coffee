@@ -1,3 +1,4 @@
+import $ from 'jquery'
 
 dectivateMainTabs = () -> $('.nav-tabs a').removeClass('active')
 

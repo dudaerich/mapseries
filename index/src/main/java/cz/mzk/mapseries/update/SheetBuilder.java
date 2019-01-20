@@ -1,6 +1,7 @@
 package cz.mzk.mapseries.update;
 
 import cz.mzk.mapseries.dao.SheetDAO;
+import cz.mzk.mapseries.managers.ContentDefinitionItem;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import cz.mzk.mapseries.oai.marc.MarcRecord;
 import cz.mzk.mapseries.oai.marc.MarcTraversal;
@@ -18,11 +19,11 @@ public class SheetBuilder {
     private static final String INNER_DEL = " ";
     private static final String OUTER_DEL = "; ";
 
-    private final ContentDefinition contentDefinition;
+    private final ContentDefinitionItem contentDefinition;
     private final MarcRecord marcRecord;
     private final PrintStream log;
     
-    public SheetBuilder(ContentDefinition contentDefinition, MarcRecord marcRecord, PrintStream log) {
+    public SheetBuilder(ContentDefinitionItem contentDefinition, MarcRecord marcRecord, PrintStream log) {
         this.contentDefinition = contentDefinition;
         this.marcRecord = marcRecord;
         this.log = log;

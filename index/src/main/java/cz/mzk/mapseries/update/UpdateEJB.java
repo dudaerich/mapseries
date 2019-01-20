@@ -9,6 +9,8 @@ import cz.mzk.mapseries.oai.marc.OaiMarcXmlReader;
 import cz.mzk.mapseries.dao.SerieDAO;
 import cz.mzk.mapseries.dao.SheetDAO;
 import cz.mzk.mapseries.dao.UpdateTaskDAO;
+import cz.mzk.mapseries.managers.ContentDefinitionItem;
+import cz.mzk.mapseries.managers.ContentDefinitionManager;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -148,14 +150,15 @@ public class UpdateEJB {
         
         List<Object> result = new ArrayList<>();
         
-        List<ContentDefinition> definitions = ContentDefinition.readFromJSONArray(definitionJson);
-        Map<ContentDefinition, SerieDAO> series = new HashMap<>();
+        ContentDefinitionManager contentDefinitionManager = ContentDefinitionManager.fromJsonString(definitionJson);
+        List<ContentDefinitionItem> definitions = contentDefinitionManager.getDefinitions();
+        Map<ContentDefinitionItem, SerieDAO> series = new HashMap<>();
         
         OaiMarcXmlReader oaiMarcXmlReader = new OaiMarcXmlReader("http://aleph.mzk.cz/OAI", "MZK01-MAPY");
         
         for (MarcRecord marcRecord : oaiMarcXmlReader) {
 
-            Optional<ContentDefinition> definition = findDefinitionForRecord(definitions, marcRecord);
+            Optional<ContentDefinitionItem> definition = findDefinitionForRecord(definitions, marcRecord);
             if (!definition.isPresent()) {
                 continue;
             }
@@ -166,6 +169,9 @@ public class UpdateEJB {
                 serie = builder.buildSerie();
                 series.put(definition.get(), serie);
                 result.add(serie);
+                
+                DescriptionBuilder descriptionBuilder = new DescriptionBuilder(definition.get(), serie);
+                result.addAll(descriptionBuilder.buildDescriptions());
             }
             
             SheetBuilder sheetBuilder = new SheetBuilder(definition.get(), marcRecord, log);
@@ -186,9 +192,9 @@ public class UpdateEJB {
         return result;
     }
     
-    private Optional<ContentDefinition> findDefinitionForRecord(List<ContentDefinition> definitions, MarcRecord marcRecord) throws Exception {
+    private Optional<ContentDefinitionItem> findDefinitionForRecord(List<ContentDefinitionItem> definitions, MarcRecord marcRecord) throws Exception {
         
-        for (ContentDefinition definition : definitions) {
+        for (ContentDefinitionItem definition : definitions) {
             if (isDefinitionSuitableForRecord(definition, marcRecord)) {
                 return Optional.of(definition);
             }
@@ -197,7 +203,7 @@ public class UpdateEJB {
         return Optional.empty();
     }
     
-    private boolean isDefinitionSuitableForRecord(ContentDefinition definition, MarcRecord marcRecord) throws Exception {
+    private boolean isDefinitionSuitableForRecord(ContentDefinitionItem definition, MarcRecord marcRecord) throws Exception {
         String field = definition.getField();
         MarcIdentifier marcId = MarcIdentifier.fromString(field);
         return marcRecord

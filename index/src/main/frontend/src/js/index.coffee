@@ -1,3 +1,4 @@
+import $ from 'jquery'
 
 updateLayout = () ->
   rightPanelHeaderHeight = 0

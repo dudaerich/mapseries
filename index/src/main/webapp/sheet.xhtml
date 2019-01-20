@@ -28,8 +28,6 @@
                         <div class="item #{status.index == series.issue ? 'active' : ''}">
                             <div class="image">
                                 <h:outputLink>
-                                    <f:param name="code" value="#{user.code}" />
-                                    <f:param name="lang" value="#{user.lang}" />
                                     <f:param name="serie" value="#{series.serie}" />
                                     <f:param name="sheet" value="#{series.sheet}" />
                                     <f:param name="issue" value="#{status.index}" />
@@ -46,8 +44,6 @@
                 <div class="detail">
                     <div>
                         <h:outputLink rendered="#{not series.issueFirst}" class="arrow left">
-                            <f:param name="code" value="#{user.code}" />
-                            <f:param name="lang" value="#{user.lang}" />
                             <f:param name="serie" value="#{series.serie}" />
                             <f:param name="sheet" value="#{series.sheet}" />
                             <f:param name="issue" value="#{series.issue - 1}" />
@@ -57,13 +53,32 @@
                             <img height="300px" src="#{series.activeSheet.thumbnailUrl}"/>
                         </a>
                         <h:outputLink rendered="#{not series.issueLast}" class="arrow right">
-                            <f:param name="code" value="#{user.code}" />
-                            <f:param name="lang" value="#{user.lang}" />
                             <f:param name="serie" value="#{series.serie}" />
                             <f:param name="sheet" value="#{series.sheet}" />
                             <f:param name="issue" value="#{series.issue + 1}" />
                             <i class="fas fa-angle-right"></i>
                         </h:outputLink>
+                    </div>
+                    
+                    <div class="metadata-container">
+                        <div class="metadata">
+                            <div class="title">#{series.activeSheet.title}</div>
+                            <table>
+                                <tr><td>#{msg['author']}:</td><td>#{series.activeSheet.author}</td></tr>
+                                <tr><td>#{msg['otherAuthors']}:</td><td>#{series.activeSheet.otherAuthors}</td></tr>
+                                <tr><td>#{msg['publisher']}:</td><td>#{series.activeSheet.publisher}</td></tr>
+                                <tr><td>#{msg['issue']}:</td><td>#{series.activeSheet.issue}</td></tr>
+                                <tr><td>#{msg['physicalDescription']}:</td><td>#{series.activeSheet.description}</td></tr>
+                                <tr><td>#{msg['signature']}:</td><td>#{series.activeSheet.signature}</td></tr>
+                                <tr>
+                                    <td>#{msg['externalReferences']}:</td>
+                                    <td>
+                                        <h:outputLink value="#{series.activeSheet.vufindUrl}">VuFind</h:outputLink>,&nbsp;
+                                        <h:outputLink value="#{series.activeSheet.digitalLibraryUrl}">#{msg['digitalLibrary']}</h:outputLink>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
                

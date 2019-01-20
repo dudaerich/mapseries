@@ -75,7 +75,7 @@ export default {
 
     table = new Handsontable($('#content-settings-table').get(0), config)
 
-    table.addHook('afterChange', ->
+    afterChangeHandler = ->
       newData = JSON.stringify(window.contentDefinitionData)
       if originData == newData
         $('#btn-save').prop('disabled', true)
@@ -83,7 +83,9 @@ export default {
       else
         $('#btn-save').prop('disabled', false)
         $(window).on 'beforeunload', beforeUnload
-    )
+
+    table.addHook('afterChange', afterChangeHandler)
+    table.addHook('afterRemoveRow', afterChangeHandler)
 
     updateSize = () ->
       width = $('.main').width()
@@ -122,7 +124,7 @@ export default {
 
         data =
           commitMessage: commitMsg
-          content: JSON.stringify(window.contentDefinitionData)
+          content: JSON.stringify(window.contentDefinitionData, null, ' ')
 
         data = JSON.stringify(data)
 
@@ -136,7 +138,7 @@ export default {
             loading.hide()
             if resp.success
               originData = JSON.stringify(window.contentDefinitionData)
-              $('#btn-save').addClass 'disabled'
+              $('#btn-save').prop('disabled', true)
               $(window).off 'beforeunload', beforeUnload
             else
               showError "For input #{data}, server returned error message #{resp.message}"

@@ -172,6 +172,14 @@ public class User implements Serializable {
         return result;
     }
     
+    public List<String> getAllLanguages() {
+        return SUPPORTED_LOCALES;
+    }
+    
+    public String getTranslatedLangKey(String lang) {
+        return "translatedLang-" + lang;
+    }
+    
     public String getUserName() {
         return githubService.getUserName();
     }

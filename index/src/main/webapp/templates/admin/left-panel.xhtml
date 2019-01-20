@@ -22,6 +22,7 @@
             <!-- Sidebar Navigation Menus-->
             <ul id="side-main-menu" class="side-menu list-unstyled">
                 <li class="#{activeMenuItem == 'index' ? 'active' : ''}"><a href="#{application.contextPath}/admin/index.xhtml"><i class="fas fa-table"></i>#{msg['contentSettings']}</a></li>
+                <li class="#{activeMenuItem == 'texts' ? 'active' : ''}"><a href="#{application.contextPath}/admin/texts.xhtml"><i class="fas fa-font"></i>#{msg['texts']}</a></li>
                 <li class="#{activeMenuItem == 'update' ? 'active' : ''}"><a href="#{application.contextPath}/admin/update.xhtml"><i class="fas fa-sync"></i>#{msg['updateSettings']}</a></li>
                 <li class="#{activeMenuItem == 'users' ? 'active' : ''}"><a href="#{application.contextPath}/admin/users.xhtml"><i class="fas fa-users-cog"></i>#{msg['usersSettings']}</a></li>
             </ul>

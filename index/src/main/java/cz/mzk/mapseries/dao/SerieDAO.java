@@ -1,5 +1,6 @@
 package cz.mzk.mapseries.dao;
 
+import java.util.Map;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Objects;

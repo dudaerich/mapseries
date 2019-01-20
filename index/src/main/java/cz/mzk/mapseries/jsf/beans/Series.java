@@ -9,6 +9,8 @@ import javax.ejb.EJB;
 import javax.enterprise.inject.Model;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import javax.inject.Inject;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
@@ -20,6 +22,9 @@ public class Series {
     
     @EJB
     private SeriesManager seriesManager;
+    
+    @Inject
+    private User user;
     
     private String serie;
     
@@ -120,5 +125,10 @@ public class Series {
     
     public boolean isIssueLast() {
         return issue == getSheets().size() - 1;
+    }
+    
+    public String getSerieDescription() {
+        Optional<String> description = seriesManager.getSerieDescription(serie, user.getLang());
+        return description.orElse("...");
     }
 }

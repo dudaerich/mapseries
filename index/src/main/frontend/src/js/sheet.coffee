@@ -1,3 +1,4 @@
+import $ from 'jquery'
 
 updateScrollbar = ->
   func = ->
@@ -28,8 +29,19 @@ registerKeyDownListener = ->
       e.preventDefault()
       movePage('right')
 
+updateLayout = ->
+  metadata = $('.main.sheet .detail .metadata-container')
+  metadataTop = metadata.offset().top
+  windowHeight = $(window).height()
+  metadataHeight = Math.round(windowHeight - metadataTop)
+  metadata.css('height', "#{metadataHeight}px")
+
 export default {
   main: ->
-    updateScrollbar()
-    registerKeyDownListener()
+    $(() ->
+      updateScrollbar()
+      registerKeyDownListener()
+      updateLayout()
+    )
+    $(window).on('resize', updateLayout)
 }

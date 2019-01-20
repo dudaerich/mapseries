@@ -1,15 +1,16 @@
 package cz.mzk.mapseries.update;
 
 import cz.mzk.mapseries.dao.SerieDAO;
+import cz.mzk.mapseries.managers.ContentDefinitionItem;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
  */
 public class SerieBuilder {
     
-    private final ContentDefinition contentDefinition;
+    private final ContentDefinitionItem contentDefinition;
     
-    public SerieBuilder(ContentDefinition contentDefinition) {
+    public SerieBuilder(ContentDefinitionItem contentDefinition) {
         this.contentDefinition = contentDefinition;
     }
     

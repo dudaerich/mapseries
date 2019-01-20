@@ -1,4 +1,5 @@
 import events from 'js/events'
+import $ from 'jquery'
 
 updateLayout = () ->
   windowHeight = $(window).height()

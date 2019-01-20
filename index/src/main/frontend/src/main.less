@@ -355,7 +355,7 @@ input.form-control:focus {
           position: absolute;
           top: 0;
           left: 0;
-          width: 100%;
+          width: 100px;
           height: 100%;
           display: none;
         }
@@ -388,6 +388,31 @@ input.form-control:focus {
     }
     .arrow.right {
       left: 40px;
+    }
+
+    .metadata-container {
+      overflow-y: auto;
+      margin-top: 20px;
+
+      .metadata {
+        display: inline-block;
+        color: white;
+        text-align: left;
+        font-size: 13px;
+
+        .title {
+          color: white;
+          margin-bottom: 7px;
+        }
+
+        table {
+          width: 100%;
+
+          td:first-child {
+            padding-right: 30px;
+          }
+        }
+      }
     }
   }
 }
