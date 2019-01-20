@@ -61,8 +61,8 @@ public class UpdateMDB implements MessageListener {
             if (result.getData().isPresent()) {
                 updateTaskDAO.setResult(true);
                 em.createQuery("DELETE FROM SheetDAO").executeUpdate();
-                em.createQuery("DELETE FROM SerieDAO").executeUpdate();
                 em.createQuery("DELETE FROM DescriptionDAO").executeUpdate();
+                em.createQuery("DELETE FROM SerieDAO").executeUpdate();
                 result.getData().get().forEach(d -> em.merge(d));
             } else {
                 updateTaskDAO.setResult(false);
