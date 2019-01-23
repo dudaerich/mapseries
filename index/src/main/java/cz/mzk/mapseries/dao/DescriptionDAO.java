@@ -1,5 +1,6 @@
 package cz.mzk.mapseries.dao;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -29,6 +30,7 @@ public class DescriptionDAO {
     
     private String lang;
     
+    @Column(columnDefinition="text")
     private String text;
 
     public Long getId() {
