@@ -42,6 +42,15 @@ export default {
         bearing = defaultBearing
         pitch = defaultPitch
 
+    getAnchor = ->
+      c = map.getCenter()
+      z = Math.round(map.getZoom() * 10000) / 10000
+      x = Math.round(c.lng * 100) / 100
+      y = Math.round(c.lat * 100) / 100
+      b = Math.round(map.getBearing() * 100) / 100
+      p = Math.round(map.getPitch() * 100) / 100
+      "#{z}/#{x}/#{y}/#{b}/#{p}"
+
     restoreMapPosition()
 
     map = new mapboxgl.Map
@@ -153,7 +162,7 @@ export default {
 
           map.on 'click', 'label-layer', (e) ->
             id = e.features[0].properties['SHEET']
-            location.href = "#{window.contextPath}/sheet.xhtml?serie=#{encodeURIComponent(window.mapSettings.serie)}&sheet=#{id}"
+            location.href = "#{window.contextPath}/sheet.xhtml?serie=#{encodeURIComponent(window.mapSettings.serie)}&sheet=#{id}#map=#{getAnchor()}"
 
           map.on 'mouseenter', 'label-layer', () -> map.getCanvas().style.cursor = 'pointer'
           map.on 'mouseleave', 'label-layer', () -> map.getCanvas().style.cursor = ''
@@ -173,17 +182,11 @@ export default {
         return
 
       updatingMapState = true
-      c = map.getCenter()
-      z = Math.round(map.getZoom() * 10000) / 10000
-      x = Math.round(c.lng * 100) / 100
-      y = Math.round(c.lat * 100) / 100
-      b = Math.round(map.getBearing() * 100) / 100
-      p = Math.round(map.getPitch() * 100) / 100
 
       if onlyLinks
-        page.updateAnchorOnlyLinks("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+        page.updateAnchorOnlyLinks("map", getAnchor())
       else
-        page.updateAnchor("map", "#{z}/#{x}/#{y}/#{b}/#{p}")
+        page.updateAnchor("map", getAnchor())
 
       updatingMapState = false
 

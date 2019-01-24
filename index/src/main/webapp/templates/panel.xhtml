@@ -21,7 +21,9 @@
                 </select>
             </div>
             <div class="row justify-content-end red">
-                <div class="title">#{msg['applicationTitle']}</div>
+                <a href="#{application.contextPath.isEmpty() ? '/' : application.contextPath}">
+                    <div class="title">#{msg['applicationTitle']}</div>
+                </a>
             </div>
             <div class="row justify-content-end red">
                 <div class="subtitle">#{msg['applicationSubTitle']}</div>
@@ -36,13 +38,13 @@
             <div class="row">
                 <ul class="nav nav-tabs nav-fill" role="tablist">
                     <li class="nav-item">
-                        <a id="main-tab" class="nav-link active" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">#{msg['series']}</a>
+                        <a id="main-tab" class="nav-link active" data-toggle="tab" href="#main" data-target="#main" role="tab" aria-controls="main" aria-selected="true">#{msg['list']}</a>
                     </li>
                     <li class="nav-item">
-                        <a id="about-tab" class="nav-link" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false">#{msg['applicationTitle']}</a>
+                        <a id="about-tab" class="nav-link" data-toggle="tab" href="#about" data-target="#about" role="tab" aria-controls="about" aria-selected="false">#{msg['applicationTitle']}</a>
                     </li>
                     <li class="nav-item">
-                        <a id="help-tab" class="nav-link" data-toggle="tab" href="#help" role="tab" aria-controls="help" aria-selected="false">#{msg['help']}</a>
+                        <a id="help-tab" class="nav-link" data-toggle="tab" href="#help" data-target="#help" role="tab" aria-controls="help" aria-selected="false">#{msg['help']}</a>
                     </li>
                 </ul>
             </div>
@@ -66,17 +68,21 @@
             </div>
             <div class="row tab-pane fade justify-content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
                 <div class="col">
-                    <div class="row tab-text subtitle" data-text-ref="about-scales-text"></div>
+                    <div class="row tab-text my-4">
+                        <h:outputText value="#{msg['about.text']}" escape="false"/>
+                    </div>
                 </div>
             </div>
             <div class="row tab-pane fade justify-content-start black" id="help" role="tabpanel" aria-labelledby="help-tab">
                 <div class="col">
-                    <div class="row tab-text subtitle" data-text-ref="help-text"></div>
+                    <div class="row tab-text my-4">
+                        <h:outputText value="#{msg['help.text']}" escape="false"/>
+                    </div>
                 </div>
             </div>
             <div class="row tab-pane fade justify-content-start black" id="authors" role="tabpanel" aria-labelledby="authors-tab">
                 <div class="col">
-                    <div class="row tab-text my-4" data-text-ref="authors-text">
+                    <div class="row tab-text my-4">
                         <h:outputText value="#{msg['authors.text']}" escape="false"/>
                     </div>
                 </div>
@@ -93,13 +99,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-4 text-center nav">
-                        <a id="authors-tab" href="#authors" class="align-middle" data-toggle="tab" aria-selected="false" role="tab" aria-controls="authors">
+                    <div class="col-3 text-center nav">
+                        <a id="authors-tab" href="#authors" data-target="#authors" class="align-middle" data-toggle="tab" aria-selected="false" role="tab" aria-controls="authors">
                             #{msg['authors']}
                         </a>
                         <span class="separator">|</span>
                     </div>
-                    <div class="col-8 text-center">
+                    <div class="col-3 text-center">
+                        <a href="#{application.contextPath}/admin" class="align-middle">#{msg['admin']}</a>
+                        <span class="separator">|</span>
+                    </div>
+                    <div class="col-6 text-center">
                         <a href="https://www.openstreetmap.org/" class="align-middle">#{msg['openstreetmap-contributors']}</a>
                     </div>
                 </div>

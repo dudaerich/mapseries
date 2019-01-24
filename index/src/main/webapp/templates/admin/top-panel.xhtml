@@ -14,7 +14,7 @@
                         <ui:fragment rendered="#{user.authenticate and user.admin}">
                             <a id="toggle-btn" href="#" class="menu-btn"><i class="fas fa-bars"></i></a>
                         </ui:fragment>
-                        <a href="#{application.contextPath.isEmpty() ? '' : application.contextPath}" class="navbar-brand">
+                        <a href="#{application.contextPath.isEmpty() ? '/' : application.contextPath}" class="navbar-brand">
                             <div class="brand-text d-none d-md-inline-block">
                                 <strong>Mapseries</strong>
                             </div>

@@ -13,21 +13,27 @@ updateScrollbar = ->
   window.setTimeout(func, 500)
 
 registerKeyDownListener = ->
-  LEFT_KEY = 37
-  RIGHT_KEY = 39
 
   movePage = (direction) ->
     a = $(".main.sheet .detail .arrow.#{direction}")
     if a.length
       window.location = a.attr('href')
 
+  closeDetail = ->
+    a = $('.main.sheet .detail .close-button')
+    window.location = a.attr('href')
+
   $(document).keydown (e) ->
-    if e.keyCode == LEFT_KEY
+    console.log(e)
+    if e.key == 'ArrowLeft'
       e.preventDefault()
       movePage('left')
-    else if e.keyCode == RIGHT_KEY
+    else if e.key == 'ArrowRight'
       e.preventDefault()
       movePage('right')
+    else if e.key == 'Escape'
+      e.preventDefault()
+      closeDetail()
 
 updateLayout = ->
   metadata = $('.main.sheet .detail .metadata-container')

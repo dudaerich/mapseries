@@ -42,6 +42,10 @@
                 </div>
                 
                 <div class="detail">
+                    <h:outputLink class="close-button" value="#{application.contextPath}/map.xhtml">
+                        <f:param name="serie" value="#{series.serie}" />
+                        <i class="fas fa-times"></i>
+                    </h:outputLink>
                     <div>
                         <h:outputLink rendered="#{not series.issueFirst}" class="arrow left">
                             <f:param name="serie" value="#{series.serie}" />
