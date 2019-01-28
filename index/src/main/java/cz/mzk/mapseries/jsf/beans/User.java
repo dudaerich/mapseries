@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
@@ -159,6 +160,17 @@ public class User implements Serializable {
             LOG.error(e.getMessage(), e);
         }
         return "#";
+    }
+    
+    public String getLangUrlMap() {
+        
+        String result = getLanguages()
+                .stream()
+                .map(lang -> String.format("'%s': '%s'", lang, getLangUrl(lang)))
+                .collect(Collectors.joining(", "));
+        
+        return String.format("{%s}", result);
+        
     }
     
     public List<String> getLanguages() {

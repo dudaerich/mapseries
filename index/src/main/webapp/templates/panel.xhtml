@@ -14,10 +14,11 @@
                         <h:graphicImage library="default" name="#{msg['mzkLogoSrc']}"/>
                     </a>
                 </div>
-                <select id="lang-switcher" class="languages custom-select">
-                    <option value="cs">CZ</option>
-                    <option value="de">DE</option>
-                    <option value="en">EN</option>
+                <select id="lang-switcher" class="languages custom-select" autocomplete="off">
+                    <option value="#{user.lang}" selected="true">#{msg[user.lang]}</option>
+                    <ui:repeat var="lang" value="#{user.languages}">
+                        <option value="#{lang}">#{msg[lang]}</option>
+                    </ui:repeat>
                 </select>
             </div>
             <div class="row justify-content-end red">
@@ -117,6 +118,7 @@
         </div>
         
         <script>
+            window.langUrls = #{user.langUrlMap};
             window.rightPanel.main();
         </script>
 

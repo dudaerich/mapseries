@@ -34,6 +34,10 @@ updateScrollbar = ->
   func = ->
     container = $('#main')
     activeItem = $('.right-panel .serie.active')
+
+    if not activeItem.length
+      return
+
     activeItemTop = Math.round(activeItem.position().top)
     activeItemBottom = activeItemTop + activeItem.height()
 
@@ -42,12 +46,19 @@ updateScrollbar = ->
 
   window.setTimeout(func, 500)
 
+langSwitcher = ->
+  select = $('#lang-switcher')
+  select.change (e) ->
+    anchor = window.location.hash
+    window.location = "#{window.langUrls[select.val()]}#{anchor}"
+
 export default {
   main: ->
     $(() ->
       updateTabSize()
       addSlashBetweenZoomButtons()
       updateScrollbar()
+      langSwitcher()
     )
     $(window).on('resize', updateTabSize)
     $('a[data-toggle="tab"]').on('shown.bs.tab', (e) ->
