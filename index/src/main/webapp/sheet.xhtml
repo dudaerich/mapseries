@@ -25,7 +25,8 @@
                     <div class="text">#{msg['availableVersionsOfSheet']}</div>
                     
                     <ui:repeat value="#{series.sheets}" var="sheet" varStatus="status">
-                        <div class="item #{status.index == series.issue ? 'active' : ''}">
+                        <div class="hoverable item #{status.index == series.issue ? 'active' : ''}">
+                            <div class="underlay"></div>
                             <div class="image">
                                 <h:outputLink>
                                     <f:param name="serie" value="#{series.serie}" />
@@ -33,7 +34,6 @@
                                     <f:param name="issue" value="#{status.index}" />
                                     <img width="100px" src="#{sheet.thumbnailUrl}"/>
                                 </h:outputLink>
-                                <div class="overlay"></div>
                             </div>
                             <div class="mt-1">#{sheet.title}</div>
                             <div>#{sheet.year}</div>

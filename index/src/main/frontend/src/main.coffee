@@ -10,6 +10,7 @@ import tools from 'js/tools'
 import admin from 'js/admin'
 import sheet from 'js/sheet'
 import textEditor from 'js/text-editor'
+import hoverable from 'js/hoverable'
 
 window.rightPanel = rightPanel
 window.index = index
@@ -21,3 +22,4 @@ window.tools = tools
 window.admin = admin
 window.sheet = sheet
 window.textEditor = textEditor
+window.hoverable = hoverable

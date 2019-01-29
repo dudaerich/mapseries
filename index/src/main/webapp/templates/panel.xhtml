@@ -50,22 +50,21 @@
                 </ul>
             </div>
 
-            <div class="row tab-pane fade show active justify-content-start black" id="main" role="tabpanel" aria-labelledby="main-tab">
-                <div class="col mt-4">
-                    <div class="row"><h2>#{msg['choose-serie']}:</h2></div>
-                    <ui:repeat value="#{series.series}" var="serie">
-                        <div class="row serie #{series.isSerieActive(serie) ? 'active' : 'inactive'}">
-                            <h:link value="— #{serie.name}" outcome="/map.xhtml">
-                                <f:param name="serie" value="#{serie.name}"/>
-                            </h:link>
-                            <ui:fragment rendered="#{series.isSerieActive(serie)}">
-                                <div class="description">
-                                    #{series.serieDescription}
-                                </div>
-                            </ui:fragment>
-                        </div>                        
-                    </ui:repeat>
-                </div>
+            <div class="row tab-pane fade show active justify-content-start padding black" id="main" role="tabpanel" aria-labelledby="main-tab">
+                <div class="row mt-4"><h2>#{msg['choose-serie']}:</h2></div>
+                <ui:repeat value="#{series.series}" var="serie">
+                    <div class="row serie hoverable #{series.isSerieActive(serie) ? 'active' : 'inactive'}" data-ref="#{serie.name}">
+                        <div class="underlay"></div>
+                        <h:link value="— #{serie.name}" outcome="/map.xhtml">
+                            <f:param name="serie" value="#{serie.name}"/>
+                        </h:link>
+                        <ui:fragment rendered="#{series.isSerieActive(serie)}">
+                            <div class="description">
+                                #{series.serieDescription}
+                            </div>
+                        </ui:fragment>
+                    </div>                        
+                </ui:repeat>
             </div>
             <div class="row tab-pane fade justify-content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
                 <div class="col">
