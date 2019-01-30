@@ -9,6 +9,8 @@ import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import java.io.PrintStream;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -18,6 +20,7 @@ public class SheetBuilder {
 
     private static final String INNER_DEL = " ";
     private static final String OUTER_DEL = "; ";
+    private static final Pattern UUID = Pattern.compile("^.*/uuid:(.+)$");
 
     private final ContentDefinitionItem contentDefinition;
     private final MarcRecord marcRecord;
@@ -115,8 +118,22 @@ public class SheetBuilder {
         if (digitalLibraryUrl.isEmpty()) {
             return "";
         } else {
-            String uuid = digitalLibraryUrl.replace("http://www.digitalniknihovna.cz/mzk/uuid/uuid:", "");
-            return String.format("https://kramerius.mzk.cz/search/api/v5.0/item/uuid:%s/thumb", uuid);
+            Optional<String> uuid = parseUuid(digitalLibraryUrl);
+            if (uuid.isPresent()) {
+                return String.format("https://kramerius.mzk.cz/search/api/v5.0/item/uuid:%s/thumb", uuid.get());
+            } else {
+                return "";
+            }
+        }
+    }
+    
+    private Optional<String> parseUuid(String url) {
+        Matcher matcher = UUID.matcher(url);
+        if (matcher.matches() && matcher.groupCount() == 1) {
+            return Optional.of(matcher.group(1));
+        } else {
+            log.println("[WARN] record has unexpected digitalLibraryUrl: " + marcRecord);
+            return Optional.empty();
         }
     }
     

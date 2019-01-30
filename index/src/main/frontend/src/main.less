@@ -2,6 +2,7 @@
 @import "~bootstrap/dist/css/bootstrap.min.css";
 @import "~mapbox-gl/dist/mapbox-gl.css";
 @import "~@fortawesome/fontawesome-free/css/all.min.css";
+@import "css/autocomplete.css";
 @import "css/scrollbar.css";
 @import "css/hoverable.less";
 
@@ -46,6 +47,7 @@ a:hover {
   right: @right-panel-width;
   width: auto;
   max-width: none;
+  padding-bottom: 20px;
   z-index: 1000;
   font-family: @font-family;
   color: white;
@@ -67,20 +69,20 @@ a:hover {
 .black {
   background-color: @black;
 }
-.justify-content-start.padding > * {
+.content-start.padding > * {
   padding-left: 35px;
   padding-right: 35px;
   margin-left: 0;
   margin-right: 0;
 }
-.justify-content-start > * {
+.content-start > * {
   margin-left: 35px;
   margin-right: 35px;
 }
-.justify-content-end > * {
+.content-end > * {
   margin-right: 20px;
 }
-.justify-content-between > * {
+.content-between > * {
   margin-left: 35px;
   margin-right: 20px;
 }
@@ -135,11 +137,11 @@ input.form-control:focus {
   color: black;
 
   b {
-    color: rgb(24, 152, 255);
+    color: @red;
   }
 }
 .autocomplete-suggestion:hover {
-  background-color: #4a90d9;
+  background-color: @red;
   color: white;
 
   b {
@@ -309,14 +311,18 @@ input.form-control:focus {
     top: 0;
     bottom: 0;
     right: 0;
+    width: auto;
     overflow-y: scroll;
     overflow-x: hidden;
     padding-top: 20px;
-    padding-bottom: 20px;
+    padding-bottom: 50px;
+
     .serie {
+      display: inline-block;
+      padding: 10px;
+      width: 200px;
+
       a {
-        display: inline-block;
-        padding: 10px;
         color: white;
         font-family: @font-family;
         font-weight: 400;
@@ -327,9 +333,6 @@ input.form-control:focus {
       .serie-title {
         padding-top: 5px;
       }
-    }
-    .row.empty {
-      height: 50px;
     }
   }
 }
@@ -385,6 +388,10 @@ input.form-control:focus {
     text-align: center;
     padding-top: @sheet-padding-top;
 
+    a {
+      color: @red;
+    }
+
     .close-button {
       position: absolute;
       right: 25px;
@@ -434,4 +441,7 @@ input.form-control:focus {
       }
     }
   }
+}
+#search-location {
+  text-align: right;
 }

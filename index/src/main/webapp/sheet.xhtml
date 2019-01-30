@@ -53,7 +53,7 @@
                             <f:param name="issue" value="#{series.issue - 1}" />
                             <i class="fas fa-angle-left"></i>
                         </h:outputLink>
-                        <a href="#{series.activeSheet.digitalLibraryUrl}">
+                        <a href="#{series.activeSheet.digitalLibraryUrl}" class="no-anchor" target="_blank">
                             <img height="300px" src="#{series.activeSheet.thumbnailUrl}"/>
                         </a>
                         <h:outputLink rendered="#{not series.issueLast}" class="arrow right">
@@ -77,8 +77,8 @@
                                 <tr>
                                     <td>#{msg['externalReferences']}:</td>
                                     <td>
-                                        <h:outputLink value="#{series.activeSheet.vufindUrl}">VuFind</h:outputLink>,&nbsp;
-                                        <h:outputLink value="#{series.activeSheet.digitalLibraryUrl}">#{msg['digitalLibrary']}</h:outputLink>
+                                        <h:outputLink value="#{series.activeSheet.vufindUrl}" class="no-anchor" target="_blank">VuFind</h:outputLink>,&nbsp;
+                                        <h:outputLink value="#{series.activeSheet.digitalLibraryUrl}" class="no-anchor" target="_blank">#{msg['digitalLibrary']}</h:outputLink>
                                     </td>
                                 </tr>
                             </table>

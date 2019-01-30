@@ -29,14 +29,10 @@ updateLayoutOfLog = () ->
 export default {
   main: ->
     $(() ->
-      updateLayout()
       topPanel()
     )
-    $(window).on('resize', updateLayout)
+    events.on('resize', updateLayout)
 
   log: ->
-    $(() ->
-      updateLayoutOfLog()
-    )
-    $(window).on('resize', updateLayoutOfLog)
+    events.on('resize', updateLayoutOfLog)
 }

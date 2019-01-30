@@ -2,6 +2,12 @@ import $ from 'jquery'
 import delayedHandler from 'js/delayed-handler'
 import bootbox from 'bootbox'
 import loading from 'js/loading'
+import events from 'js/events'
+
+originalText = ''
+
+saveOriginalText = ->
+  originalText = $('textarea').val()
 
 updateLayout = ->
   textarea = $('textarea')
@@ -15,9 +21,7 @@ beforeUnload = (e) -> e.returnValue = window.msg.changesNotSaved
 textAreaListener = (e) ->
   newText = $(e.target).val()
 
-  console.log("Comparing #{newText} == #{window.textEditor.originalText}")
-
-  if newText == window.textEditor.originalText
+  if newText == originalText
     $('#btn-save').prop('disabled', true)
     $(window).off 'beforeunload', beforeUnload
   else
@@ -68,7 +72,7 @@ save = ->
         success: (resp) ->
           loading.hide()
           if resp.success
-            window.textEditor.originalText = '' + $('textarea').val()
+            originalText = '' + $('textarea').val()
             $('#btn-save').prop('disabled', true)
             $(window).off 'beforeunload', beforeUnload
           else
@@ -83,10 +87,10 @@ save = ->
 export default {
   main: ->
     $(() ->
-      updateLayout()
       registerTextAreaListener()
+      saveOriginalText()
     )
-    $(window).on('resize', updateLayout)
+    events.on('resize', updateLayout)
 
   onSaveClick: save
   onRestoreClick: -> window.location.reload()

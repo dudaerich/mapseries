@@ -1,4 +1,4 @@
-import 'jquery'
+import $ from 'jquery'
 import 'bootstrap'
 import rightPanel from 'js/right-panel'
 import index from 'js/index'
@@ -11,6 +11,7 @@ import admin from 'js/admin'
 import sheet from 'js/sheet'
 import textEditor from 'js/text-editor'
 import hoverable from 'js/hoverable'
+import events from 'js/events'
 
 window.rightPanel = rightPanel
 window.index = index
@@ -23,3 +24,10 @@ window.admin = admin
 window.sheet = sheet
 window.textEditor = textEditor
 window.hoverable = hoverable
+
+$(window).on 'resize', () ->
+  events.fire('resize')
+
+$(() ->
+  events.fire('resize')
+)

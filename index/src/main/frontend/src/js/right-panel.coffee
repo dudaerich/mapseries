@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import events from 'js/events'
 
 dectivateMainTabs = () -> $('.nav-tabs a').removeClass('active')
 
@@ -55,12 +56,11 @@ langSwitcher = ->
 export default {
   main: ->
     $(() ->
-      updateTabSize()
       addSlashBetweenZoomButtons()
       updateScrollbar()
       langSwitcher()
     )
-    $(window).on('resize', updateTabSize)
+    events.on('resize', updateTabSize)
     $('a[data-toggle="tab"]').on('shown.bs.tab', (e) ->
       if e.target.id == 'authors-tab'
         dectivateMainTabs()

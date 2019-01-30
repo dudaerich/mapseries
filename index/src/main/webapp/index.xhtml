@@ -28,29 +28,23 @@
                     <h2>#{msg['availableSeries']}:</h2>
                     <div>#{msg['clickOnSerieInstructions']}</div>
                 </div>
-                <div class="series">
-                    <ui:repeat step="3" value="#{series.series}" varStatus="outerLoopIndex" var="outerLoopVar">
-                        <div class="row">
-                            <ui:repeat offset="#{outerLoopIndex.index}" size="#{(outerLoopIndex.index + 3) gt series.series.size() ? series.series.size() : outerLoopIndex.index + 3}" 
-                            var="serie" value="#{series.series}">
-
-                                <div class="serie hoverable col-md-4" data-ref="#{serie.name}">
-                                    <div class="underlay"></div>
-                                    <h:outputLink value="#{application.contextPath}/map.xhtml">
-                                        <f:param name="serie" value="#{serie.name}"/>
-                                        <div>
-                                            <img src="#{serie.thumbnailUrl}"/>
-                                        </div>
-                                        <div class="serie-title">
-                                            <h:outputText value="#{serie.name}"/>
-                                        </div>
-                                    </h:outputLink>
-                                </div>
-
-                            </ui:repeat>
-                        </div>
-                    </ui:repeat>
-                    <div class="row empty"></div>
+                <div class="series container-fluid">
+                    <div class="row justify-content-start">
+                        <ui:repeat var="serie" value="#{series.series}">
+                            <div class="serie hoverable" data-ref="#{serie.name}">
+                                <div class="underlay"></div>
+                                <h:outputLink value="#{application.contextPath}/map.xhtml">
+                                    <f:param name="serie" value="#{serie.name}"/>
+                                    <div>
+                                        <img src="#{serie.thumbnailUrl}"/>
+                                    </div>
+                                    <div class="serie-title">
+                                        <h:outputText value="#{serie.nameHtml}" escape="false"/>
+                                    </div>
+                                </h:outputLink>
+                            </div>
+                        </ui:repeat>
+                    </div>
                 </div>
             </div>
 

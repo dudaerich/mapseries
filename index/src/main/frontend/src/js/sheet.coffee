@@ -1,4 +1,5 @@
 import $ from 'jquery'
+import events from 'js/events'
 
 updateScrollbar = ->
   func = ->
@@ -47,7 +48,6 @@ export default {
     $(() ->
       updateScrollbar()
       registerKeyDownListener()
-      updateLayout()
     )
-    $(window).on('resize', updateLayout)
+    events.on('resize', updateLayout)
 }

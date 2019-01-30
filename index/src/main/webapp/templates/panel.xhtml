@@ -8,9 +8,9 @@
     <ui:composition>
 
         <div class="container right-panel">
-            <div class="row justify-content-between red">
+            <div class="row justify-content-between content-between red">
                 <div class="logo">
-                    <a href="https://www.mzk.cz/">
+                    <a href="https://www.mzk.cz/" class="no-anchor" target="_blank">
                         <h:graphicImage library="default" name="#{msg['mzkLogoSrc']}"/>
                     </a>
                 </div>
@@ -21,18 +21,18 @@
                     </ui:repeat>
                 </select>
             </div>
-            <div class="row justify-content-end red">
+            <div class="row justify-content-end content-end red">
                 <a href="#{application.contextPath.isEmpty() ? '/' : application.contextPath}">
                     <div class="title">#{msg['applicationTitle']}</div>
                 </a>
             </div>
-            <div class="row justify-content-end red">
+            <div class="row justify-content-end content-end red">
                 <div class="subtitle">#{msg['applicationSubTitle']}</div>
             </div>
-            <div class="row justify-content-end red">
+            <div class="row justify-content-end content-end red">
                 <div class="search-label">#{msg['search-label']}:</div>
             </div>
-            <div class="row justify-content-end red">
+            <div class="row justify-content-end content-end red">
                 <input id="search-location" type="text" class="search-input form-control right mb-4 mt-2"/>
             </div>
 
@@ -50,12 +50,13 @@
                 </ul>
             </div>
 
-            <div class="row tab-pane fade show active justify-content-start padding black" id="main" role="tabpanel" aria-labelledby="main-tab">
+            <div class="row tab-pane fade show active justify-content-start content-start padding black" id="main" role="tabpanel" aria-labelledby="main-tab">
                 <div class="row mt-4"><h2>#{msg['choose-serie']}:</h2></div>
                 <ui:repeat value="#{series.series}" var="serie">
                     <div class="row serie hoverable #{series.isSerieActive(serie) ? 'active' : 'inactive'}" data-ref="#{serie.name}">
                         <div class="underlay"></div>
-                        <h:link value="— #{serie.name}" outcome="/map.xhtml">
+                        <h:link outcome="/map.xhtml">
+                            <h:outputText value="— #{serie.nameHtml}" escape="false"/>
                             <f:param name="serie" value="#{serie.name}"/>
                         </h:link>
                         <ui:fragment rendered="#{series.isSerieActive(serie)}">
@@ -66,21 +67,21 @@
                     </div>                        
                 </ui:repeat>
             </div>
-            <div class="row tab-pane fade justify-content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
+            <div class="row tab-pane fade justify-content-start content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
                 <div class="col">
                     <div class="row tab-text my-4">
                         <h:outputText value="#{msg['about.text']}" escape="false"/>
                     </div>
                 </div>
             </div>
-            <div class="row tab-pane fade justify-content-start black" id="help" role="tabpanel" aria-labelledby="help-tab">
+            <div class="row tab-pane fade justify-content-start content-start black" id="help" role="tabpanel" aria-labelledby="help-tab">
                 <div class="col">
                     <div class="row tab-text my-4">
                         <h:outputText value="#{msg['help.text']}" escape="false"/>
                     </div>
                 </div>
             </div>
-            <div class="row tab-pane fade justify-content-start black" id="authors" role="tabpanel" aria-labelledby="authors-tab">
+            <div class="row tab-pane fade justify-content-start content-start black" id="authors" role="tabpanel" aria-labelledby="authors-tab">
                 <div class="col">
                     <div class="row tab-text my-4">
                         <h:outputText value="#{msg['authors.text']}" escape="false"/>
@@ -91,26 +92,26 @@
             <div class="black" id="footer">
                 <div class="row">
                     <div class="col text-center">
-                        <a href="http://mapseries.mzk.cz/catalog" class="align-middle">#{msg['mapseries-catalog']}</a>
+                        <a href="http://mapseries.mzk.cz/catalog" class="align-middle no-anchor" target="_blank">#{msg['mapseries-catalog']}</a>
                         <span class="separator">|</span>
                     </div>
                     <div class="col text-center">
-                        <a href="https://moravianlibrary.github.io/scale-calculator/" class="align-middle">#{msg['scale-calculator']}</a>
+                        <a href="https://moravianlibrary.github.io/scale-calculator/" class="align-middle no-anchor" target="_blank">#{msg['scale-calculator']}</a>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-3 text-center nav">
-                        <a id="authors-tab" href="#authors" data-target="#authors" class="align-middle" data-toggle="tab" aria-selected="false" role="tab" aria-controls="authors">
+                        <a id="authors-tab" href="#authors" data-target="#authors" class="align-middle no-anchor" data-toggle="tab" aria-selected="false" role="tab" aria-controls="authors">
                             #{msg['authors']}
                         </a>
                         <span class="separator">|</span>
                     </div>
                     <div class="col-3 text-center">
-                        <a href="#{application.contextPath}/admin" class="align-middle">#{msg['admin']}</a>
+                        <a href="#{application.contextPath}/admin" class="align-middle no-anchor">#{msg['admin']}</a>
                         <span class="separator">|</span>
                     </div>
                     <div class="col-6 text-center">
-                        <a href="https://www.openstreetmap.org/" class="align-middle">#{msg['openstreetmap-contributors']}</a>
+                        <a href="https://www.openstreetmap.org/" class="align-middle no-anchor" target="_blank">#{msg['openstreetmap-contributors']}</a>
                     </div>
                 </div>
             </div>
