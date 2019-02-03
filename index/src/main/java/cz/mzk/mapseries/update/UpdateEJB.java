@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
@@ -60,7 +64,9 @@ public class UpdateEJB {
     @Resource(lookup = "java:/jms/queue/UpdateTasks")
     private Queue queue;
     
-    private PrintStream log = null;
+    private PrintStream log;
+
+    private ExecutorService executor;
     
     @Lock(READ)
     public void scheduleUpdateTask() throws Exception {
@@ -106,6 +112,7 @@ public class UpdateEJB {
         File logFile = createTempFile();
         
         log = createPrintStream(logFile);
+        executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         
         try {
             List<Object> data = doUpdate(definitionJson);
@@ -118,9 +125,17 @@ public class UpdateEJB {
             return new UpdateTaskResult(logFile);
             
         } finally {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(5, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                e.printStackTrace(log);
+            }
+
             log.close();
             runningTask = null;
             log = null;
+            executor = null;
         }
     }
     
@@ -174,7 +189,7 @@ public class UpdateEJB {
                 result.addAll(descriptionBuilder.buildDescriptions());
             }
             
-            SheetBuilder sheetBuilder = new SheetBuilder(definition.get(), marcRecord, log);
+            SheetBuilder sheetBuilder = new SheetBuilder(definition.get(), marcRecord, log, executor);
             Optional<SheetDAO> optSheetDAO = sheetBuilder.buildSheet();
             
             if (!optSheetDAO.isPresent()) {

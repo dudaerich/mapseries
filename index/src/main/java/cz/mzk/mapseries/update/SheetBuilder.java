@@ -7,8 +7,17 @@ import cz.mzk.mapseries.oai.marc.MarcRecord;
 import cz.mzk.mapseries.oai.marc.MarcTraversal;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,16 +29,19 @@ public class SheetBuilder {
 
     private static final String INNER_DEL = " ";
     private static final String OUTER_DEL = "; ";
-    private static final Pattern UUID = Pattern.compile("^.*/uuid:(.+)$");
+    private static final Pattern UUID = Pattern.compile("^.*/(uuid:.+)$");
+    private static final int THUMBNAIL_HEIGHT = 300;
 
     private final ContentDefinitionItem contentDefinition;
     private final MarcRecord marcRecord;
     private final PrintStream log;
+    private final Executor executor;
     
-    public SheetBuilder(ContentDefinitionItem contentDefinition, MarcRecord marcRecord, PrintStream log) {
+    public SheetBuilder(ContentDefinitionItem contentDefinition, MarcRecord marcRecord, PrintStream log, Executor executor) {
         this.contentDefinition = contentDefinition;
         this.marcRecord = marcRecord;
         this.log = log;
+        this.executor = executor;
     }
     
     public Optional<SheetDAO> buildSheet() {
@@ -51,10 +63,10 @@ public class SheetBuilder {
         sheet.setSignature(getSignature());
         
         String digitalLibraryUrl = getDigitalLibraryUrl();
-        String thumbnailUrl = getThubmnailUrl(digitalLibraryUrl);
+
+        executor.execute(() -> sheet.setThumbnailUrl(getThumbnailUrl(digitalLibraryUrl)));
         
         sheet.setDigitalLibraryUrl(digitalLibraryUrl);
-        sheet.setThumbnailUrl(thumbnailUrl);
         sheet.setVufindUrl(getVufindUrl());
         
         return Optional.of(sheet);
@@ -113,14 +125,14 @@ public class SheetBuilder {
 
         return marcTraversal.getValue(marcId).orElse("");
     }
-    
-    private String getThubmnailUrl(String digitalLibraryUrl) {
+
+    private String getThumbnailUrl(String digitalLibraryUrl) {
         if (digitalLibraryUrl.isEmpty()) {
             return "";
         } else {
             Optional<String> uuid = parseUuid(digitalLibraryUrl);
             if (uuid.isPresent()) {
-                return String.format("https://kramerius.mzk.cz/search/api/v5.0/item/uuid:%s/thumb", uuid.get());
+                return getThumbnailUrlFromUuid(uuid.get());
             } else {
                 return "";
             }
@@ -133,6 +145,52 @@ public class SheetBuilder {
             return Optional.of(matcher.group(1));
         } else {
             log.println("[WARN] record has unexpected digitalLibraryUrl: " + marcRecord);
+            return Optional.empty();
+        }
+    }
+
+    private String getThumbnailUrlFromUuid(String uuid) {
+        Optional<String> childUuid = getFirstChildOfUuid(uuid);
+
+        if (childUuid.isPresent()) {
+            return String.format("https://kramerius.mzk.cz/search/iiif/%s/full/,%s/0/default.jpg", childUuid.get(), THUMBNAIL_HEIGHT);
+        } else {
+            return String.format("https://kramerius.mzk.cz/search/api/v5.0/item/%s/thumb", uuid);
+        }
+    }
+
+    private Optional<String> getFirstChildOfUuid(String uuid) {
+
+        try {
+            URL url = new URL(String.format("https://kramerius.mzk.cz/search/api/v5.0/item/%s/children", uuid));
+            String content = IOUtils.toString(url);
+            JSONArray json = new JSONArray(content);
+
+            if (json.length() == 0) {
+                log.println(String.format("Cannot get child of %s. The API returned no children. Content: %s", url, content));
+                return Optional.empty();
+            }
+
+            Object childObject = json.get(0);
+
+            if (!(childObject instanceof JSONObject)) {
+                log.println(String.format("Unexpected format of data.  Url: %s, Content: %s", url, content));
+                return Optional.empty();
+            }
+
+            JSONObject child = (JSONObject) childObject;
+
+            if (child.has("pid")) {
+                return Optional.of(child.getString("pid"));
+            } else {
+                log.println(String.format("Child has no pid key. Url: %s, Content: %s", url, content));
+                return Optional.empty();
+            }
+
+        } catch (Exception e) {
+            log.println("Exception thrown while getting uuid of first child. MarcRecord: " + marcRecord);
+            e.printStackTrace(log);
+
             return Optional.empty();
         }
     }

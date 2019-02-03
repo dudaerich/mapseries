@@ -14,15 +14,15 @@ updateTabSize = () ->
   padding.css('height', '0px')
   tab.css('height', 'auto');
   tabPosition = tab.position()
-  tabHeight = tab.height() + footer.height()
+  tabHeight = tab.height() + footer.outerHeight()
 
   if tabPosition.top + tabHeight > windowHeight
-    newTabHeight = (windowHeight - tabPosition.top) - footer.height()
+    newTabHeight = (windowHeight - tabPosition.top) - footer.outerHeight()
     tab.css('height', Math.round(newTabHeight) + 'px')
     tab.css('overflow-y', 'scroll')
   else
     footerOffset = footer.offset()
-    footerBottom = footerOffset.top + footer.height()
+    footerBottom = footerOffset.top + footer.outerHeight()
     paddingHeight = Math.round(windowHeight - footerBottom)
     padding.css('height', paddingHeight + 'px')
     tab.css('height', 'auto')
