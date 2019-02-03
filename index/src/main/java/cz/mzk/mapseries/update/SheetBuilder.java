@@ -167,14 +167,14 @@ public class SheetBuilder {
             JSONArray json = new JSONArray(content);
 
             if (json.length() == 0) {
-                log.println(String.format("Cannot get child of %s. The API returned no children. Content: %s", url, content));
+                log.println(String.format("Cannot get child of %s. The API returned no children. Content: %s. MarcRecord: %s", url, content, marcRecord));
                 return Optional.empty();
             }
 
             Object childObject = json.get(0);
 
             if (!(childObject instanceof JSONObject)) {
-                log.println(String.format("Unexpected format of data.  Url: %s, Content: %s", url, content));
+                log.println(String.format("Unexpected format of data.  Url: %s. Content: %s. MarcRecord: %s", url, content, marcRecord));
                 return Optional.empty();
             }
 
@@ -183,7 +183,7 @@ public class SheetBuilder {
             if (child.has("pid")) {
                 return Optional.of(child.getString("pid"));
             } else {
-                log.println(String.format("Child has no pid key. Url: %s, Content: %s", url, content));
+                log.println(String.format("Child has no pid key. Url: %s. Content: %s. MarcRecord: %s", url, content, marcRecord));
                 return Optional.empty();
             }
 
