@@ -14,12 +14,12 @@
                         <h:graphicImage library="default" name="#{msg['mzkLogoSrc']}"/>
                     </a>
                 </div>
-                <select id="lang-switcher" class="languages custom-select" autocomplete="off">
+                <!--select id="lang-switcher" class="languages custom-select" autocomplete="off">
                     <option value="#{user.lang}" selected="true">#{msg[user.lang]}</option>
                     <ui:repeat var="lang" value="#{user.languages}">
                         <option value="#{lang}">#{msg[lang]}</option>
                     </ui:repeat>
-                </select>
+                </select-->
             </div>
             <div class="row justify-content-end content-end red">
                 <a href="#{application.contextPath.isEmpty() ? '/' : application.contextPath}">
@@ -111,7 +111,9 @@
                         <span class="separator">|</span>
                     </div>
                     <div class="col-6 text-center">
-                        <a href="https://www.openstreetmap.org/" class="align-middle no-anchor" target="_blank">#{msg['openstreetmap-contributors']}</a>
+                        <span class="text">©</span>
+                        <a href="https://www.mzk.cz/" class="align-middle no-anchor" target="_blank">MZK</a><span class="text">,</span>
+                        <a href="https://www.openstreetmap.org/" class="align-middle no-anchor" target="_blank">OpenStreetMap</a>
                     </div>
                 </div>
             </div>
