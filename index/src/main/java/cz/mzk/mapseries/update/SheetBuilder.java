@@ -180,8 +180,8 @@ public class SheetBuilder {
             JSONArray json = new JSONArray(content);
 
             if (json.length() == 0) {
-                log.println(String.format("Cannot get child of %s. The API returned no children. Content: %s. MarcRecord: %s", url, content, marcRecord));
-                return Optional.empty();
+                // the API returned no children. Given uuid is already child uuid.
+                return Optional.of(uuid);
             }
 
             Object childObject = json.get(0);
