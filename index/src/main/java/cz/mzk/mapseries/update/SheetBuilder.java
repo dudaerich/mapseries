@@ -1,5 +1,6 @@
 package cz.mzk.mapseries.update;
 
+import cz.mzk.mapseries.Constants;
 import cz.mzk.mapseries.dao.SheetDAO;
 import cz.mzk.mapseries.managers.ContentDefinitionItem;
 import cz.mzk.mapseries.oai.marc.MarcIdentifier;
@@ -11,13 +12,16 @@ import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.URI;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,7 +78,7 @@ public class SheetBuilder {
     
     private Optional<String> getId() {
         MarcIdentifier marcId = MarcIdentifier.fromString(contentDefinition.getSheets());
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         Optional<String> sheetId = marcTraversal.getValue(marcId);
         
@@ -101,14 +105,14 @@ public class SheetBuilder {
     
     private String getTitle() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("245").withSubfield("a").build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
         
         return marcTraversal.getValue(marcId).orElse("Unknown");
     }
     
     private String getYear() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("490").withSubfield("v").build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
         
         String year = marcTraversal.getValue(marcId).orElse("");
         
@@ -121,20 +125,20 @@ public class SheetBuilder {
     
     private String getDigitalLibraryUrl() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("911").withSubfield("u").build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         return marcTraversal.getValue(marcId).orElse("");
     }
 
     private String getThumbnailUrl(String digitalLibraryUrl) {
         if (digitalLibraryUrl.isEmpty()) {
-            return "";
+            return Constants.THUMBNAIL_UNAVAILABLE;
         } else {
             Optional<String> uuid = parseUuid(digitalLibraryUrl);
             if (uuid.isPresent()) {
                 return getThumbnailUrlFromUuid(uuid.get());
             } else {
-                return "";
+                return Constants.THUMBNAIL_UNAVAILABLE;
             }
         }
     }
@@ -151,11 +155,20 @@ public class SheetBuilder {
 
     private String getThumbnailUrlFromUuid(String uuid) {
         Optional<String> childUuid = getFirstChildOfUuid(uuid);
+        String url;
 
         if (childUuid.isPresent()) {
-            return String.format("https://kramerius.mzk.cz/search/iiif/%s/full/,%s/0/default.jpg", childUuid.get(), THUMBNAIL_HEIGHT);
+            url = String.format("https://kramerius.mzk.cz/search/iiif/%s/full/,%s/0/default.jpg", childUuid.get(), THUMBNAIL_HEIGHT);
         } else {
-            return String.format("https://kramerius.mzk.cz/search/api/v5.0/item/%s/thumb", uuid);
+            url = String.format("https://kramerius.mzk.cz/search/api/v5.0/item/%s/thumb", uuid);
+        }
+        
+        int code = checkUrl(url);
+        
+        switch (code) {
+            case 200: return url;
+            case 403: return Constants.THUMBNAIL_COPYRIGHTED;
+            default:  return Constants.THUMBNAIL_UNAVAILABLE;
         }
     }
 
@@ -167,8 +180,8 @@ public class SheetBuilder {
             JSONArray json = new JSONArray(content);
 
             if (json.length() == 0) {
-                log.println(String.format("Cannot get child of %s. The API returned no children. Content: %s. MarcRecord: %s", url, content, marcRecord));
-                return Optional.empty();
+                // the API returned no children. Given uuid is already child uuid.
+                return Optional.of(uuid);
             }
 
             Object childObject = json.get(0);
@@ -195,6 +208,19 @@ public class SheetBuilder {
         }
     }
     
+    private int checkUrl(String urlParam) {
+        try {
+            URL url = new URL(urlParam);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            return conn.getResponseCode();
+            
+        } catch (Exception e) {
+            log.println("Error at processing url: " + urlParam);
+            e.printStackTrace(log);
+            return 500;
+        }
+    }
+    
     private String getVufindUrl() {
         Optional<String> controlField = marcRecord.getControlField("001");
         if (!controlField.isPresent()) {
@@ -206,7 +232,9 @@ public class SheetBuilder {
     }
     
     private String getAuthor() {
-        MarcTraversal marcTraversal = createMarcTraversal();
+        MarcTraversal marcTraversal = createMarcTraversal()
+                .withSubfieldTransformer(s -> s.replaceAll(",\\s*$", ""))
+                .build();
 
         MarcIdentifier marc110 = new MarcIdentifier.Builder().withField("110").withSubfield("a").withSubfield("b").withDelimiter(INNER_DEL).build();
         MarcIdentifier marc100 = new MarcIdentifier.Builder().withField("100").withSubfield("a").withSubfield("d").withDelimiter(INNER_DEL).build();
@@ -221,7 +249,9 @@ public class SheetBuilder {
     }
 
     private String getOtherAuthors() {
-        MarcTraversal marcTraversal = createMarcTraversal();
+        MarcTraversal marcTraversal = createMarcTraversal()
+                .withSubfieldTransformer(s -> s.replaceAll(",\\s*$", ""))
+                .build();
 
         MarcIdentifier marc710 = new MarcIdentifier.Builder().withField("710").withSubfield("a").withSubfield("b").withDelimiter(INNER_DEL).build();
         MarcIdentifier marc700 = new MarcIdentifier.Builder().withField("700").withSubfield("a").withSubfield("d").withDelimiter(INNER_DEL).build();
@@ -239,7 +269,7 @@ public class SheetBuilder {
                 .withDelimiter(INNER_DEL)
                 .build();
 
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         String value = marcTraversal.getValueAsString(OUTER_DEL, marcId).orElse(null);
 
@@ -255,14 +285,14 @@ public class SheetBuilder {
                 .withDelimiter(INNER_DEL)
                 .build();
 
-        marcTraversal = createMarcTraversal(marcId);
+        marcTraversal = createMarcTraversal(marcId).build();
 
         return marcTraversal.getValueAsString(OUTER_DEL, marcId).orElse("");
     }
 
     private String getIssue() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("250").withSubfield("a").build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         return marcTraversal.getValueAsString(OUTER_DEL, marcId).orElse("");
     }
@@ -270,23 +300,23 @@ public class SheetBuilder {
     private String getDescription() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("300")
                 .withSubfield("a").withSubfield("b").withSubfield("c").withDelimiter(INNER_DEL).build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         return marcTraversal.getValueAsString(OUTER_DEL, marcId).orElse("");
     }
 
     private String getSignature() {
         MarcIdentifier marcId = new MarcIdentifier.Builder().withField("910").withSubfield("b").build();
-        MarcTraversal marcTraversal = createMarcTraversal(marcId);
+        MarcTraversal marcTraversal = createMarcTraversal(marcId).build();
 
         return marcTraversal.getValueAsString(OUTER_DEL, marcId).orElse("");
     }
 
-    private MarcTraversal createMarcTraversal() {
+    private MarcTraversal.Builder createMarcTraversal() {
         return createMarcTraversal(null);
     }
 
-    private MarcTraversal createMarcTraversal(MarcIdentifier identifier) {
+    private MarcTraversal.Builder createMarcTraversal(MarcIdentifier identifier) {
         MarcTraversal.Builder builder = new MarcTraversal.Builder()
                 .withMarcRecord(marcRecord)
                 .withLogHandler(log::println);
@@ -297,7 +327,7 @@ public class SheetBuilder {
             builder.withDataFieldPredicate(dataField -> contentDefinition.getName().equals(dataField.getSubfield(fieldId.getSubfields().get(0)).orElse(null)));
         }
 
-        return builder.build();
+        return builder;
     }
     
 }

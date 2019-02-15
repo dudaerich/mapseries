@@ -1,6 +1,8 @@
 package cz.mzk.mapseries.dao;
 
+import cz.mzk.mapseries.Constants;
 import javax.persistence.*;
+import org.jboss.logging.Logger;
 
 /**
  * @author Erich Duda <dudaerich@gmail.com>
@@ -154,5 +156,16 @@ public class SheetDAO {
 
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+    
+    public boolean isThumbnailUnavailable() {
+        return Constants.THUMBNAIL_UNAVAILABLE.equals(thumbnailUrl);
+    }
+    
+    public boolean isThumbnailCopyrighted() {
+        Logger log = Logger.getLogger(SheetDAO.class);
+        boolean result = Constants.THUMBNAIL_COPYRIGHTED.equals(thumbnailUrl);
+        log.info("isThumbnailCopyrighted:" + result, new Exception());
+        return result;
     }
 }

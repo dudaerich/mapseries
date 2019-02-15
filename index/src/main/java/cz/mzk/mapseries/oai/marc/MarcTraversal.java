@@ -2,6 +2,7 @@ package cz.mzk.mapseries.oai.marc;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,11 +12,13 @@ public class MarcTraversal {
     private final MarcRecord marcRecord;
     private final Consumer<String> logHandler;
     private final List<Predicate<MarcDataField>> dataFieldPredicates;
+    private final Function<String, String> subfieldTransformer;
 
     private MarcTraversal(Builder builder) {
         marcRecord = builder.marcRecord;
         logHandler = builder.logHandler;
         dataFieldPredicates = builder.dataFieldPredicates;
+        subfieldTransformer = builder.subfieldTransformer;
     }
 
     public Optional<String> getValue(MarcIdentifier identifier) {
@@ -89,6 +92,10 @@ public class MarcTraversal {
         if (values.isEmpty()) {
             return Optional.empty();
         }
+        
+        if (subfieldTransformer != null) {
+            values = values.stream().map(subfieldTransformer).collect(Collectors.toList());
+        }
 
         String value = String.join(identifier.getDelimiter(), values);
         return Optional.of(value);
@@ -99,6 +106,7 @@ public class MarcTraversal {
         private MarcRecord marcRecord;
         private Consumer<String> logHandler;
         private final List<Predicate<MarcDataField>> dataFieldPredicates = new ArrayList<>();
+        private Function<String, String> subfieldTransformer;
 
         public Builder withMarcRecord(MarcRecord marcRecord) {
             Objects.requireNonNull(marcRecord);
@@ -115,6 +123,12 @@ public class MarcTraversal {
         public Builder withDataFieldPredicate(Predicate<MarcDataField> predicate) {
             Objects.requireNonNull(predicate);
             dataFieldPredicates.add(predicate);
+            return this;
+        }
+        
+        public Builder withSubfieldTransformer(Function<String, String> subfieldTransformer) {
+            Objects.requireNonNull(subfieldTransformer);
+            this.subfieldTransformer = subfieldTransformer;
             return this;
         }
 
