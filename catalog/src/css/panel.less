@@ -1,0 +1,60 @@
+.right-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  z-index: 1000;
+  overflow-y: hidden;
+}
+.blue {
+  background-color: rgb(24, 152, 255);
+}
+.black {
+  background-color: rgba(37, 39, 43, 0.85);
+}
+.justify-content-start > * {
+  margin-left: 35px;
+  margin-right: 35px;
+}
+.justify-content-end > * {
+  margin-right: 20px;
+}
+.justify-content-between > * {
+  margin-left: 35px;
+  margin-right: 20px;
+}
+.languages {
+  margin-top: 15px;
+}
+select.custom-select {
+  width: auto;
+  border-radius: 0;
+  height: calc(1.4rem + 2px);
+  padding: 0.1rem 1.6rem 0.1rem 0.3rem;
+  background: #0000 url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 9'%3E%3Cpath stroke='%23000000' fill='none' stroke-width='1.25' d='M1 1L8 7L14 1'/%3E%3C/svg%3E") no-repeat right 0.35rem center;
+  background-size: 15px 9px;
+  border-color: black;
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  color: black;
+}
+select.custom-select.white {
+  border-color: white;
+  color: white;
+  background: #0000 url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 9'%3E%3Cpath stroke='%23ffffff' fill='none' stroke-width='1.25' d='M1 1L8 7L14 1'/%3E%3C/svg%3E") no-repeat right 0.35rem center;
+  background-size: 15px 9px;
+}
+select.custom-select.wide, input.form-control.wide {
+  width: 80%;
+}
+select.custom-select.black-bg option {
+  background-color: #646568;
+}
+select.custom-select.black-bg option:checked {
+  color: rgb(24, 152, 255);
+}
+.logo {
+  margin-top: 15px;
+}
