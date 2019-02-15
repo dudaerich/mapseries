@@ -262,7 +262,7 @@ input.form-control:focus {
     margin-left: 0;
     margin-right: 0;
   }
-  a {
+  a, .text {
     font-family: @font-family;
     font-size: 9px;
     color: white;
@@ -377,6 +377,27 @@ input.form-control:focus {
     .item.active .underlay {
       display: block;
     }
+
+    .thumbnail-unavailable, .thumbnail-copyrighted {
+      display: inline-table;
+      color: white;
+      font-size: 12px;
+      font-family: @font-family;
+      background-color: @black-underlay;
+      text-align: center;
+      width: 100px;
+      height: 150px;
+
+      > * {
+        width: 100px;
+        height: 150px;
+      }
+    }
+
+    .hovered .thumbnail-unavailable, .hovered .thumbnail-copyrighted,
+    .active .thumbnail-unavailable, .active .thumbnail-copyrighted {
+      background-color: rgba(16, 18, 22, 0.4);
+    }
   }
   .left-panel > * {
     padding-left: 10px;
@@ -389,6 +410,21 @@ input.form-control:focus {
     bottom: 0;
     text-align: center;
     padding-top: @sheet-padding-top;
+
+    .thumbnail-unavailable, .thumbnail-copyrighted {
+      display: inline-table;
+      color: white;
+      font-size: 18px;
+      font-family: @font-family;
+      background-color: @black-underlay;
+      width: 200px;
+      height: 300px;
+
+      > * {
+        width: 200px;
+        height: 300px;
+      }
+    }
 
     a {
       color: @red;

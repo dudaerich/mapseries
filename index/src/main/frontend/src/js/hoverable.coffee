@@ -11,6 +11,8 @@ getReferencedUnderlays = (target) ->
 hoverIn = (e) ->
   target = $(e.target).closest('.hoverable')
 
+  target.addClass('hovered')
+
   if target.hasClass('active')
     return
 
@@ -20,6 +22,8 @@ hoverIn = (e) ->
 
 hoverOut = (e) ->
   target = $(e.target).closest('.hoverable')
+
+  target.removeClass('hovered')
 
   if target.hasClass('active')
     return
