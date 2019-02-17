@@ -12,24 +12,28 @@
 
 
 .goog-combobox {
-  background: #ddd url(//ssl.gstatic.com/closure/button-bg.gif) repeat-x scroll left top;
-  border: 1px solid #b5b6b5;
-  font: normal small "Courier New", Courier, monospace;
+  background-color: #0000;
+  border: 1px solid @theme-color;
+  font-family: @font;
+  line-height: normal;
 }
 
 .goog-combobox input {
-  background-color: #ffc;
+  background-color: #0000;
   border: 0;
-  border-right: 1px solid #b5b6b5;
-  color: #000;
-  font: normal small "Courier New", Courier, monospace;
+  color: white;
+  font-family: @font;
   margin: 2px 0;
   padding: 0 0 0 2px;
   width: 200px;
 }
 
-.goog-combobox input.label-input-label {
+.goog-combobox.active input {
+  background-color: #646568;
+}
 
+.goog-combobox-disabled {
+  border-color: white;
 }
 
 .goog-combobox .goog-menu {
@@ -49,4 +53,21 @@
 /* IE6 only hack */
 * html .goog-combobox-button {
   padding: 0 3px;
+}
+
+::-webkit-input-placeholder {
+   color: white;
+   font-style: italic;
+}
+:-moz-placeholder { /* Firefox 18- */
+   color: white;
+   font-style: italic;
+}
+::-moz-placeholder {  /* Firefox 19+ */
+   color: white;
+   font-style: italic;
+}
+:-ms-input-placeholder {
+  color: white;
+  font-style: italic;
 }

@@ -10,7 +10,7 @@
     <meta http-equiv="refresh" content="0; url=http://www.ie6countdown.com/" />
     <script type="text/javascript">window.top.location = 'http://www.ie6countdown.com/';</script>
     <![endif]-->
-    <script type="text/javascript" src="lib/zeroclipboard/ZeroClipboard.min.js"></script>
+    <script type="text/javascript" src="zeroclipboard/ZeroClipboard.min.js"></script>
     <script src="/server/data/config.js"></script>
     <script>
       COMPILED=false;
@@ -33,66 +33,68 @@
   </head>
   <body>
     <div class="container right-panel">
-      <div class="row justify-content-between blue">
+      <div class="row justify-content-between green">
         <div class="logo">
-          <a href="https://www.mzk.cz/"><img data-text-ref="mzk-logo-src" data-text-target="src" width="90px" src="mzk-logo.png"></a>
+          <a href="https://www.mzk.cz/" target="_blank"><img data-text-ref="mzk-logo-src" data-text-target="src" width="90px" src="mzk-logo.png"></a>
         </div>
         <select id="lang-switcher" class="languages custom-select">
           <option value="cs">CZ</option>
-          <option value="de">DE</option>
           <option value="en">EN</option>
         </select>
       </div>
-      <div class="row justify-content-end blue">
-        <div data-text-ref="scale-calculator" class="title"></div>
+      <div class="row justify-content-end green">
+        <div data-text-ref="title" class="title"></div>
       </div>
-      <div class="row justify-content-end blue">
+      <div class="row justify-content-end green">
+        <div data-text-ref="subtitle" class="subtitle"></div>
+      </div>
+      <div class="row justify-content-end green">
         <div data-text-ref="search-label" class="search-label"></div>
       </div>
-      <div class="row justify-content-end blue">
+      <div class="row justify-content-end green">
         <input id="search-location" type="text" class="search-input form-control right mb-4 mt-2">
       </div>
 
       <div class="row">
         <ul class="nav nav-tabs nav-fill" role="tablist">
           <li class="nav-item">
-            <a data-text-ref="calculation" id="main-tab" class="nav-link active" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true"></a>
+            <a data-text-ref="tab-main" id="main-tab" class="nav-link active" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true"></a>
           </li>
           <li class="nav-item">
-            <a data-text-ref="about-scales" id="about-tab" class="nav-link" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false"></a>
+            <a data-text-ref="tab-about" id="about-tab" class="nav-link" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false"></a>
           </li>
           <li class="nav-item">
-            <a data-text-ref="help" id="help-tab" class="nav-link" data-toggle="tab" href="#help" role="tab" aria-controls="help" aria-selected="false"></a>
+            <a data-text-ref="tab-help" id="help-tab" class="nav-link" data-toggle="tab" href="#help" role="tab" aria-controls="help" aria-selected="false"></a>
           </li>
         </ul>
       </div>
 
       <div class="row tab-pane fade show active justify-content-start black" id="main" role="tabpanel" aria-labelledby="main-tab">
         <div class="col">
-          <div data-text-ref="subtitle" class="row subtitle"></div>
-          <div data-text-ref="system" class="row label my-1"></div>
+          <div data-text-ref="choose-serie" class="row subtitle my-2"></div>
+          <div data-text-ref="filter-region" class="row label my-1"></div>
           <div class="row">
-            <select id="input-system" class="custom-select white black-bg wide"></select>
+            <select id="regionSelect" class="custom-select white black-bg wide mb-3"></select>
           </div>
-          <div data-text-ref="used-system-unit" class="row label my-1"></div>
+          <div data-text-ref="filter-grid" class="row label my-1"></div>
           <div class="row">
-            <select id="input-unit" class="custom-select white black-bg wide mt-1 mb-3"></select>
+            <select id="gridSelect" class="custom-select white black-bg wide mt-1 mb-3"></select>
           </div>
-          <div data-text-ref="length" class="row label my-1"></div>
+          <div data-text-ref="choose-serie" class="row label my-1"></div>
           <div class="row">
-            <input id="input-value-mm" type="text" class="form-control mm wide black-bg" value="100">
+            <select id="seriesSelect" class="custom-select white black-bg wide mt-1 mb-3"></select>
           </div>
-          <div data-text-ref="on-map-is" class="row label my-1"></div>
+          <div data-text-ref="choose-layer" class="row subtitle my-2"></div>
+          <div id="results" class="row">
+            <!-- here comes the results -->
+          </div>
           <div class="row">
-            <input id="input-value-unit" type="text" class="form-control wide black-bg my-1" value="1">
-          </div>
-
-          <div data-text-ref="on-the-ground" class="row label my-1"></div>
-          <div class="row output my-4">
-            <span data-text-ref="scale"></span><span id="output"><span id="output-prefix">1:</span><span id="output-value"></span></span>
+            <a id="edit-bttn" class="hidden" href="#" data-text-ref="edit"></a>
           </div>
         </div>
       </div>
+
+
       <div class="row tab-pane fade justify-content-start black" id="about" role="tabpanel" aria-labelledby="about-tab">
         <div class="col">
           <div class="row tab-text subtitle" data-text-ref="about-scales-text"></div>
@@ -103,6 +105,8 @@
           <div class="row tab-text subtitle" data-text-ref="help-text"></div>
         </div>
       </div>
+
+
       <div class="row tab-pane fade justify-content-start black" id="authors" role="tabpanel" aria-labelledby="authors-tab">
         <div class="col">
           <div class="row tab-text my-4" data-text-ref="authors-text"></div>
@@ -112,11 +116,11 @@
       <div class="black" id="footer">
         <div class="row">
           <div class="col text-center">
-            <a href="http://mapseries.mzk.cz" class="align-middle" data-text-ref="mapseries-online"></a>
+            <a href="http://mapseries.mzk.cz" target="_blank" class="align-middle" data-text-ref="mapseries-online"></a>
             <span class="separator">|</span>
           </div>
           <div class="col text-center">
-            <a href="http://mapseries.mzk.cz/catalog" class="align-middle" data-text-ref="mapseries-catalog"></a>
+            <a href="https://mapy.mzk.cz/scale-calculator" target="_blank" class="align-middle" data-text-ref="scale-calculator"></a>
           </div>
         </div>
         <div class="row">
@@ -125,42 +129,15 @@
             <span class="separator">|</span>
           </div>
           <div class="col-8 text-center">
-            <a href="https://www.openstreetmap.org/" class="align-middle" data-text-ref="openstreetmap-contributors"></a>
+            <span>©</span>
+            <a href="https://www.mzk.cz/" target="_blank">MZK</a>
+            <span>,</span>
+            <a href="https://www.openstreetmap.org/" target="_blank" data-text-ref="openstreetmap"></a>
           </div>
         </div>
       </div>
     </div>
-    <div id="header"><h1>Map Series</h1></div>
-    <div id="footer">Copyright (C) 2012 <a href="http://www.klokantech.com/">Klokan Technologies</a>, <a href="http://geogr.muni.cz/">Masaryk university</a>, <a href="http://www.nls.uk/">NLS</a>. Project <a href="http://www.temap.cz/">TEMAP</a>.</div>
-    <div id="topbar">
-      <form id="search-form">
-      <b>Find a place:</b> <input type="search" placeholder="Find a place ..." autocomplete="off" id="search">
-      </form>
-    </div>
-    <div id="sidebar">
-      <div class="block">
-        <h4>1. Choose a serie:</h4>
-        Filter by region
-        <select id="regionSelect">
-        </select>
-        Filter by grid:
-        <select id="gridSelect">
-        </select>
-        Choose a serie:
-        <select id="seriesSelect">
-        </select>
-      </div>
-      <div class="block">
-        <h4>2. Select sheet:</h4>
-        <div id="results">
-          <!-- here comes the results -->
-        </div>
-      </div>
-      <div id="edit-bttn" class="block">
-        <!-- here comes a button for editing serie -->
-      </div>
-    </div>
-    <!-- <div id="map"></div> -->
+    <div id="map"></div>
     <script>main()</script>
   </body>
 </html>

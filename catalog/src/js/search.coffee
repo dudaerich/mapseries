@@ -27,8 +27,9 @@ class Search
     # initialize region switcher
     regions = Series.getRegions(@seriess)
     @updateRegions(regions)
-    @setRegion('')
-    @setActiveSheet(null)
+
+    $('#regionSelect').trigger('change')
+
 
   initMap: ->
     # default zoom, center and rotation
@@ -119,9 +120,8 @@ class Search
                 "type": "fill"
                 "source": "serie-source-marked"
                 "paint": {
-                    "fill-color": "#e67e22"
-                    "fill-outline-color": "#e67e22"
-                    "fill-opacity": 0.4
+                    "fill-color": "#00d583"
+                    "fill-opacity": 0.6
                 }
               }
               {
@@ -129,13 +129,14 @@ class Search
                 "type": "symbol"
                 "source": "serie-source-labels-marked"
                 "paint": {
-                    "text-color": "#e74c3c"
-                    "text-halo-color": "#f1c40f"
-                    "text-halo-width": 3
+                    "text-color": "#ffffff"
+                    "text-halo-color": "#00d583"
+                    "text-halo-width": 4
                 }
                 "layout": {
                   "text-field": "{SHEET}"
                   "text-font": ["Open Sans Light"]
+                  "text-max-width": 20
                 }
               }
             ]
@@ -200,11 +201,6 @@ class Search
     select.off()
     select.empty()
 
-    select.append $('<option>', {
-      value: '',
-      text: 'Filter by region'
-    })
-
     regions.forEach (region) ->
       select.append $('<option>', {
         value: region,
@@ -230,11 +226,6 @@ class Search
     select = $('#gridSelect')
     select.off()
     select.empty()
-
-    select.append $('<option>', {
-      value: '',
-      text: 'Filter by grid'
-    })
 
     grids.forEach (grid) ->
       visTitle = if region then grid.getShortTitle() else grid.title
@@ -301,12 +292,9 @@ class Search
         }
     }
 
-    link = $('<a></a>')
-    link.attr('href', '/edit/#mapserie=' + series.id)
-    link.append('Edit')
-
-    container = $('#edit-bttn')
-    container.empty().append(link)
+    editBttn = $('#edit-bttn')
+    editBttn.removeClass('hidden')
+    editBttn.attr('href', "/edit/#mapserie=#{series.id}")
 
   setActiveSheet: (sheet) ->
     html = null
@@ -319,7 +307,7 @@ class Search
         "type": "FeatureCollection",
         "features": []
       })
-      html = $('<i>Click on a sheet</i>')
+      html = $('')
       @template.setVisible(false);
     else
       centroid = turf.centroid(sheet)
